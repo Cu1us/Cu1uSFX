@@ -52,7 +52,6 @@ namespace Cu1uSFX.Internal
                 GetSFXListScriptPath();
 
             string scriptPath = Path.Combine(SFXListScriptPath, "../SFXEnum.cs");
-            Debug.Log("Generating enum script at " + scriptPath);
 
             List<string> addedNames = new();
 
@@ -115,65 +114,4 @@ namespace Cu1uSFX.Internal
 #endif
         }
     }
-
-    // [CustomPropertyDrawer(typeof(SFXDefinition))]
-    // public class SFXDefinition_Editor : PropertyDrawer
-    // {
-    //     const float EDITING_INDENT = 20f;
-    //     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-    //     {
-    //         SerializedProperty editingProp = property.FindPropertyRelative(nameof(SFXDefinition.Editor_Editing));
-    //         Rect rect = position;
-    //         rect.height = EditorGUIUtility.singleLineHeight;
-    //         Rect drawRect = rect;
-    //         if (editingProp.boolValue)
-    //         {
-    //             drawRect.width /= 2;
-    //             GUI.Label(drawRect, "editing!!");
-    //             drawRect.x += drawRect.width;
-    //             if (GUI.Button(drawRect, "Stop editing"))
-    //             {
-    //                 editingProp.boolValue = false;
-    //             }
-
-    //             rect.width -= EDITING_INDENT;
-    //             rect.x += EDITING_INDENT;
-
-    //             rect.y += EditorGUIUtility.singleLineHeight;
-    //             drawRect = rect;
-    //             SerializedProperty clipList = property.FindPropertyRelative(nameof(SFXDefinition.Clips));
-    //             EditorGUI.PropertyField(drawRect, clipList);
-    //             rect.y += EditorGUI.GetPropertyHeight(clipList, true);
-    //         }
-    //         else
-    //         {
-    //             drawRect.width /= 2;
-    //             GUI.Label(drawRect, "Hello this is a sound");
-    //             drawRect.x += drawRect.width;
-    //             if (GUI.Button(drawRect, "Edit"))
-    //             {
-    //                 editingProp.boolValue = true;
-    //             }
-    //         }
-    //         if (property.serializedObject.hasModifiedProperties)
-    //         {
-    //             property.serializedObject.ApplyModifiedProperties();
-    //         }
-    //     }
-    //     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-    //     {
-    //         float height;
-    //         SerializedProperty editingProp = property.FindPropertyRelative(nameof(SFXDefinition.Editor_Editing));
-    //         if (editingProp.boolValue)
-    //         {
-    //             height = EditorGUIUtility.singleLineHeight * 1;
-    //             height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative(nameof(SFXDefinition.Clips)), true);
-    //         }
-    //         else
-    //         {
-    //             height = EditorGUIUtility.singleLineHeight * 1;
-    //         }
-    //         return height;
-    //     }
-    // }
 }

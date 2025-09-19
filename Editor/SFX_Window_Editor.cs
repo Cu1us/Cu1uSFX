@@ -25,7 +25,7 @@ namespace Cu1uSFX.Internal
 
             if (definitionsProp == null)
             {
-                Debug.LogError("Cu1uSFX error: Sounds array is null");
+                Debug.LogError("[Cu1uSFX] Error: Sounds array is null");
                 return content;
             }
 
@@ -223,7 +223,6 @@ namespace Cu1uSFX.Internal
         }
         public override void DiscardChanges()
         {
-            Debug.Log("Discarded changes!");
             base.DiscardChanges();
         }
 
@@ -236,16 +235,6 @@ namespace Cu1uSFX.Internal
             window.Regenerate();
         }
     }
-
-
-
-
-
-
-
-
-
-
 
 
     public class SFX_EditSFXWindow_Editor : EditorWindow
@@ -532,12 +521,6 @@ namespace Cu1uSFX.Internal
         void OnCategoryChanged(SerializedPropertyChangeEvent changeEvent)
         {
             OnObjectUpdated?.Invoke();
-        }
-
-        public override void SaveChanges()
-        {
-            Debug.Log("Saved changes!!");
-            base.SaveChanges();
         }
 
         void PreviewSound()

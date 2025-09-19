@@ -43,7 +43,7 @@ namespace Cu1uSFX
         {
             if (sfx == null)
             {
-                Debug.LogWarning("[Cu1uSFX] Error: Tried to play 'None' sound");
+                Debug.LogWarning("[Cu1uSFX] Warning: Tried to play a 'None' sound.");
                 return null;
             }
 #if UNITY_EDITOR
@@ -61,7 +61,7 @@ namespace Cu1uSFX
         {
             if (sfx == null)
             {
-                Debug.LogWarning("[Cu1uSFX] Error: Tried to play 'None' sound");
+                Debug.LogWarning("[Cu1uSFX] Warning: Tried to play a 'None' sound.");
                 return null;
             }
 #if UNITY_EDITOR
@@ -79,7 +79,7 @@ namespace Cu1uSFX
         {
             if (sfx == null)
             {
-                Debug.LogWarning("[Cu1uSFX] Error: Tried to play 'None' sound");
+                Debug.LogWarning("[Cu1uSFX] Warning: Tried to play a 'None' sound.");
                 return null;
             }
 #if UNITY_EDITOR
@@ -97,7 +97,7 @@ namespace Cu1uSFX
         {
             if (sfx == null)
             {
-                Debug.LogWarning("[Cu1uSFX] Error: Tried to play 'None' sound");
+                Debug.LogWarning("[Cu1uSFX] Warning: Tried to play a 'None' sound.");
                 return null;
             }
 #if UNITY_EDITOR

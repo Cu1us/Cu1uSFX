@@ -37,7 +37,7 @@ namespace Cu1uSFX.Internal
                     UnityEditor.AssetDatabase.CreateFolder("Assets", "Resources");
                 }
                 UnityEditor.AssetDatabase.CreateAsset(_instance, $"Assets/Resources/{SINGLETON_ASSET_NAME}.asset");
-                Debug.Log($"Cu1uSFX: Created a new SFX List asset at /Assets/Resources/{SINGLETON_ASSET_NAME}");
+                Debug.Log($"[Cu1uSFX] Created a new SFX List asset at '/Assets/Resources/{SINGLETON_ASSET_NAME}'!");
 #endif
             }
         }
