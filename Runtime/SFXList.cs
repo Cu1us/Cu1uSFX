@@ -40,10 +40,45 @@ namespace Cu1uSFX.Internal
                 Debug.Log($"[Cu1uSFX] Created a new SFX List asset at '/Assets/Resources/{SINGLETON_ASSET_NAME}'!");
 #endif
             }
+#if UNITY_EDITOR
+            MakeSureSFXEnumScriptPathIsValid();
+#endif
         }
+
+#if UNITY_EDITOR
+        public static bool MakeSureSFXEnumScriptPathIsValid()
+        {
+            ref string path = ref Instance.SFXEnumScriptPath;
+            if (!UnityEditor.AssetDatabase.AssetPathExists(path))
+            {
+                path = string.Empty;
+            }
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                path = "Assets/Scripts/SFXEnum.cs";
+                if (!UnityEditor.AssetDatabase.IsValidFolder("Assets/Scripts"))
+                {
+                    UnityEditor.AssetDatabase.CreateFolder("Assets", "Scripts");
+                }
+                
+                using System.IO.StreamWriter writer = new(path);
+                writer.WriteLine("using UnityEngine;");
+                writer.Close();
+                UnityEditor.AssetDatabase.ImportAsset(path);
+
+                // TextAsset a = new("hello");
+                // UnityEditor.AssetDatabase.CreateAsset(new UnityEditor.MonoScript(), $"Assets/Scripts/SFXEnum.cs");
+                return false;
+            }
+            return true;
+        }
+#endif
 
         public List<string> EnumNames = new();
         public SFXDefinition[] Definitions;
+#if UNITY_EDITOR
+        public string SFXEnumScriptPath = "Assets/Scripts/SFXEnum.cs";
+#endif
     }
 
     [Serializable]

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Cu1uSFX.Internal;
 
 namespace Cu1uSFX
 {

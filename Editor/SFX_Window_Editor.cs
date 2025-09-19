@@ -217,9 +217,9 @@ namespace Cu1uSFX.Internal
         public override void SaveChanges()
         {
             SaveChangesButton.enabledSelf = false;
-            SFXList_Editor.GenerateEnumScript();
+            SFXEnumGenerator.GenerateEnumScript();
             base.SaveChanges();
-            SFXList_Editor.RecompileScripts();
+            SFXEnumGenerator.RecompileScripts();
         }
         public override void DiscardChanges()
         {
@@ -597,15 +597,6 @@ namespace Cu1uSFX.Internal
         }
     }
 
-
-
-
-
-
-
-
-
-
     public class SFX_NewSFXWindow_Editor : EditorWindow
     {
         SerializedProperty DefinitionsProperty;
@@ -681,7 +672,7 @@ namespace Cu1uSFX.Internal
                 ErrorLabel.text = "Name cannot be empty.";
                 return;
             }
-            string formattedValue = SFXList_Editor.FormatEnumName(NameField.value);
+            string formattedValue = SFXEnumGenerator.FormatEnumName(NameField.value);
             if (NameField.value != formattedValue)
             {
                 ErrorLabel.visible = true;
