@@ -37,7 +37,7 @@ namespace Cu1uSFX.Internal
                     UnityEditor.AssetDatabase.CreateFolder("Assets", "Resources");
                 }
                 UnityEditor.AssetDatabase.CreateAsset(_instance, $"Assets/Resources/{SINGLETON_ASSET_NAME}.asset");
-                Debug.Log($"[Cu1uSFX] Created a new SFX List asset at '/Assets/Resources/{SINGLETON_ASSET_NAME}'!");
+                Debug.Log($"[Cu1uSFX] Created a new SFX List asset at '/Assets/Resources/{SINGLETON_ASSET_NAME}'!", _instance);
 #endif
             }
 #if UNITY_EDITOR
@@ -63,6 +63,9 @@ namespace Cu1uSFX.Internal
                 
                 using System.IO.StreamWriter writer = new(path);
                 writer.WriteLine("using UnityEngine;");
+                writer.WriteLine("");
+                writer.WriteLine("// DO NOT EDIT - This script will be automatically filled with enums that represent sound effecs that you create! Add sound effects in Window/SFX Editor");
+                writer.WriteLine("// DO NOT MOVE THIS SCRIPT - Assign a new script to fill with enums instead in the 'Advanced' tab in the SFX List at /Assets/Resources/SFX List");
                 writer.Close();
                 UnityEditor.AssetDatabase.ImportAsset(path);
 

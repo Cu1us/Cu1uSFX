@@ -31,24 +31,33 @@ namespace Cu1uSFX.Internal
             }
             EditorGUILayout.LabelField("The SFX editor can also be opened using the Window/SFX Editor tab.");
             EditorGUILayout.Space(20);
-            showAdvanced = EditorGUILayout.BeginFoldoutHeaderGroup(showAdvanced, "Advanced");
-            EditorGUI.BeginChangeCheck();
-            EditorGUILayout.LabelField("Change the script that the SFX enum is generated in here.");
-            selectedEnumScript = EditorGUILayout.ObjectField("Enum generation target", selectedEnumScript, typeof(MonoScript), false) as MonoScript;
-            EditorGUILayout.LabelField("WARNING: The contents of the selected script will be permanently overwritten!");
-            EditorGUILayout.LabelField("If you change this, you must also delete the previous script to avoid naming conflicts.");
-            if (EditorGUI.EndChangeCheck() && selectedEnumScript != null)
+            showAdvanced = EditorGUILayout.Foldout(showAdvanced, "Advanced");
+            if (showAdvanced)
             {
-                string newPath = AssetDatabase.GetAssetPath(selectedEnumScript);
-                sfxList.SFXEnumScriptPath = newPath;
-                if (SFXList.MakeSureSFXEnumScriptPathIsValid())
+                EditorGUI.BeginChangeCheck();
+                EditorGUILayout.LabelField("Change the script that the SFX enum is generated in here.");
+                selectedEnumScript = EditorGUILayout.ObjectField("Enum generation target", selectedEnumScript, typeof(MonoScript), false) as MonoScript;
+                EditorGUILayout.LabelField("WARNING: The contents of the selected script will be permanently overwritten!");
+                EditorGUILayout.LabelField("NOTE: The previous selected script must be deleted if this");
+                EditorGUILayout.LabelField("is changed, to prevent duplicate definitions of the SFX enum.");
+                EditorGUILayout.Space(5);
+                EditorGUILayout.LabelField("To change this safely:");
+                EditorGUILayout.LabelField("- Create a new empty script at your desired location");
+                EditorGUILayout.LabelField("- Assign that script to the field above");
+                EditorGUILayout.LabelField("- Delete the script that was previously assigned (usually located in Assets/Scripts/SFXEnum.cs)");
+                EditorGUILayout.LabelField("Done! Now all SFX enums will be generated in the new script instead.");
+                if (EditorGUI.EndChangeCheck() && selectedEnumScript != null)
                 {
-                    Debug.Log($"[Cu1uSFX] Changed enum generation target to '{newPath}'.");
-                    SFXEnumGenerator.GenerateEnumScript();
-                    SFXEnumGenerator.RecompileScripts();
+                    string newPath = AssetDatabase.GetAssetPath(selectedEnumScript);
+                    sfxList.SFXEnumScriptPath = newPath;
+                    if (SFXList.MakeSureSFXEnumScriptPathIsValid())
+                    {
+                        Debug.Log($"[Cu1uSFX] Changed enum generation target to '{newPath}'.");
+                        SFXEnumGenerator.GenerateEnumScript();
+                        SFXEnumGenerator.RecompileScripts();
+                    }
                 }
             }
-            EditorGUILayout.EndFoldoutHeaderGroup();
         }
     }
 }
