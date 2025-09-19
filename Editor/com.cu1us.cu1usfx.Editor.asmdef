@@ -1,0 +1,10 @@
+{
+    "name": "Cu1uSFX-Editor",
+    "references": [
+        "Cu1uSFX"
+    ],
+    "defineConstraints": [
+        "UNITY_2019_3_OR_NEWER",
+        "UNITY_2017_1_OR_NEWER"
+    ]
+}
