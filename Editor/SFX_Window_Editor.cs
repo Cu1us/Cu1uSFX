@@ -53,7 +53,7 @@ namespace Cu1uSFX.Internal
                 for (int i = 0; i < definitionsProp.arraySize; i++)
                 {
                     SerializedProperty sfx = definitionsProp.GetArrayElementAtIndex(i);
-                    string sfxCategory = sfx.FindPropertyRelative(nameof(SFXDefinition.Category)).stringValue;
+                    string sfxCategory = sfx.FindPropertyRelative("_category").stringValue;
 
                     if (!string.IsNullOrWhiteSpace(sfxCategory))
                     {
@@ -118,7 +118,7 @@ namespace Cu1uSFX.Internal
                 style = { alignItems = Align.FlexEnd, flexDirection = FlexDirection.Row, marginTop = 2 }
             };
 
-            string soundName = sfxProp.FindPropertyRelative(nameof(SFXDefinition.Name)).stringValue;
+            string soundName = sfxProp.FindPropertyRelative("_name").stringValue;
             Label label = new(soundName)
             {
                 style = { unityFontStyleAndWeight = FontStyle.Bold, marginLeft = 10, marginRight = 10, marginTop = 3, alignSelf = Align.FlexStart }
@@ -161,7 +161,7 @@ namespace Cu1uSFX.Internal
 
             for (int i = 0; i < definitionsProp.arraySize; i++)
             {
-                string propName = definitionsProp.GetArrayElementAtIndex(i).FindPropertyRelative(nameof(SFXDefinition.Name)).stringValue;
+                string propName = definitionsProp.GetArrayElementAtIndex(i).FindPropertyRelative("_name").stringValue;
                 if (propName == name)
                 {
                     definitionsProp.DeleteArrayElementAtIndex(i);
@@ -201,7 +201,7 @@ namespace Cu1uSFX.Internal
             List<string> desiredEnumNames = new();
             for (int i = 0; i < definitionsProp.arraySize; i++)
             {
-                string name = definitionsProp.GetArrayElementAtIndex(i).FindPropertyRelative(nameof(SFXDefinition.Name)).stringValue;
+                string name = definitionsProp.GetArrayElementAtIndex(i).FindPropertyRelative("_name").stringValue;
                 desiredEnumNames.Add(name);
             }
             if (desiredEnumNames.Count != SFXList.Instance.EnumNames.Count)
@@ -293,8 +293,8 @@ namespace Cu1uSFX.Internal
         {
             ScrollView content = new(ScrollViewMode.Vertical);
 
-            string sfxName = SfxProperty.FindPropertyRelative(nameof(SFXDefinition.Name)).stringValue;
-            string categoryName = SfxProperty.FindPropertyRelative(nameof(SFXDefinition.Category)).stringValue;
+            string sfxName = SfxProperty.FindPropertyRelative("_name").stringValue;
+            string categoryName = SfxProperty.FindPropertyRelative("_category").stringValue;
             Label editingLabel = new($"{sfxName}")
             {
                 style = { alignSelf = Align.Center, unityFontStyleAndWeight = FontStyle.Bold, marginTop = 8, marginBottom = 4, fontSize = 18 }
@@ -311,7 +311,7 @@ namespace Cu1uSFX.Internal
                 style = { marginTop = 10, marginLeft = 10, marginRight = 10 }
             };
 
-            SerializedProperty clipsProp = SfxProperty.FindPropertyRelative(nameof(SFXDefinition.Clips));
+            SerializedProperty clipsProp = SfxProperty.FindPropertyRelative("_clips");
             if (clipsProp.arraySize == 0)
             {
                 clipsProp.InsertArrayElementAtIndex(0);
@@ -385,9 +385,9 @@ namespace Cu1uSFX.Internal
                 style = { marginTop = 10, marginLeft = 10, marginRight = 10 }
             };
 
-            SerializedProperty minPitchProp = SfxProperty.FindPropertyRelative(nameof(SFXDefinition.PitchMin));
-            SerializedProperty maxPitchProp = SfxProperty.FindPropertyRelative(nameof(SFXDefinition.PitchMax));
-            SerializedProperty randomizePitchProp = SfxProperty.FindPropertyRelative(nameof(SFXDefinition.RandomizePitch));
+            SerializedProperty minPitchProp = SfxProperty.FindPropertyRelative("_pitchMin");
+            SerializedProperty maxPitchProp = SfxProperty.FindPropertyRelative("_pitchMax");
+            SerializedProperty randomizePitchProp = SfxProperty.FindPropertyRelative("_randomizePitch");
             PropertyField minPitchField = new(minPitchProp, "Min");
             PropertyField maxPitchField = new(maxPitchProp, "Max");
 
@@ -433,9 +433,9 @@ namespace Cu1uSFX.Internal
                 style = { marginTop = 10, marginLeft = 10, marginRight = 10 }
             };
 
-            SerializedProperty minVolumeProp = SfxProperty.FindPropertyRelative(nameof(SFXDefinition.VolumeMin));
-            SerializedProperty maxVolumeProp = SfxProperty.FindPropertyRelative(nameof(SFXDefinition.VolumeMax));
-            SerializedProperty randomizeVolumeProp = SfxProperty.FindPropertyRelative(nameof(SFXDefinition.RandomizeVolume));
+            SerializedProperty minVolumeProp = SfxProperty.FindPropertyRelative("_volumeMin");
+            SerializedProperty maxVolumeProp = SfxProperty.FindPropertyRelative("_volumeMax");
+            SerializedProperty randomizeVolumeProp = SfxProperty.FindPropertyRelative("_randomizeVolume");
             PropertyField minVolumeField = new(minVolumeProp, "Min");
             PropertyField maxVolumeField = new(maxVolumeProp, "Max");
 
@@ -475,7 +475,7 @@ namespace Cu1uSFX.Internal
             // Category field
             //
 
-            PropertyField categoryField = new(SfxProperty.FindPropertyRelative(nameof(SFXDefinition.Category)), "Category")
+            PropertyField categoryField = new(SfxProperty.FindPropertyRelative("_category"), "Category")
             {
                 tooltip = "Sound effects with the same category will be grouped together for easy organizing.",
                 style = { marginLeft = Length.Percent(15), marginRight = Length.Percent(15), marginTop = 20 }
@@ -692,7 +692,7 @@ namespace Cu1uSFX.Internal
             for (int i = 0; i < DefinitionsProperty.arraySize; i++)
             {
                 SerializedProperty definitionProp = DefinitionsProperty.GetArrayElementAtIndex(i);
-                string sfxName = definitionProp.FindPropertyRelative(nameof(SFXDefinition.Name)).stringValue;
+                string sfxName = definitionProp.FindPropertyRelative("_name").stringValue;
                 if (sfxName == formattedValue)
                 {
                     ErrorLabel.visible = true;
@@ -705,11 +705,7 @@ namespace Cu1uSFX.Internal
             int newIndex = DefinitionsProperty.arraySize;
             DefinitionsProperty.InsertArrayElementAtIndex(newIndex);
             SerializedProperty newSfx = DefinitionsProperty.GetArrayElementAtIndex(newIndex);
-            newSfx.boxedValue = new SFXDefinition()
-            {
-                Name = formattedValue,
-                Category = categoryToAddTo
-            };
+            newSfx.boxedValue = new SFXDefinition(formattedValue, categoryToAddTo);
             newSfx.serializedObject.ApplyModifiedProperties();
             OnObjectUpdated?.Invoke();
             Close();

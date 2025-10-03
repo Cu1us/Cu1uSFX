@@ -3,6 +3,9 @@
     "references": [
         "Cu1uSFX"
     ],
+    "includePlatforms": [
+        "Editor"
+    ],
     "defineConstraints": [
         "UNITY_2019_3_OR_NEWER",
         "UNITY_2017_1_OR_NEWER"

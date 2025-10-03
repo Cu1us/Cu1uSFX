@@ -2,86 +2,68 @@ using System;
 using UnityEngine;
 using Cu1uSFX.Internal;
 
-namespace Cu1uSFX
-{
-    [Serializable]
-    public class SerializableSFX : ISerializationCallbackReceiver
-    {
-        [SerializeField] string SFXName;
+// namespace Cu1uSFX
+// {
+//     [Serializable]
+//     public class SerializableSFX : ISerializationCallbackReceiver
+//     {
+//         [SerializeField] string SFXName;
+//         [NonSerialized] private PredefinedSFX value;
 
-        [NonSerialized] private SFX value;
-        [field: NonSerialized] public bool IsValid { get; private set; }
+//         public PredefinedSFX Value
+//         {
+//             get => value;
+//             set
+//             {
+//                 if (SFXList.IsValidSFX(value))
+//                 {
+//                     this.value = value;
+//                 }
+//                 else
+//                 {
+//                     throw new ArgumentException("[Cu1uSFX] Invalid SFX value passed when setting SerializableSFX value.");
+//                 }
+//             }
+//         }
 
-        public SFX Value
-        {
-            get => value;
-            set
-            {
-                string newSFXName = Enum.GetName(typeof(SFX), value);
-                if (string.IsNullOrEmpty(SFXName))
-                {
-                    throw new ArgumentException("[Cu1uSFX] Invalid SFX value passed when setting SerializableSFX value.");
-                }
-                else
-                {
-                    this.value = value;
-                    SFXName = newSFXName;
-                }
-            }
-        }
+//         void ISerializationCallbackReceiver.OnAfterDeserialize()
+//         {
+//             value = SFXList.GetSFXByName(SFXName) ?? PredefinedSFX.NullValue;
+//         }
+//         void ISerializationCallbackReceiver.OnBeforeSerialize()
+//         {
+//             SFXName = SFXList.GetNameOfSFX(value);
+//         }
 
-        void ISerializationCallbackReceiver.OnAfterDeserialize()
-        {
-            IsValid = Enum.TryParse(SFXName, out value);
-            if (!IsValid)
-            {
-                value = (SFX)(-1);
-            }
-        }
+//         #region Play functions
 
-        void ISerializationCallbackReceiver.OnBeforeSerialize()
-        {
-            SFXName = Enum.GetName(typeof(SFX), value);
-        }
-        public SFX ToSFX()
-        {
-            if (!IsValid)
-            {
-                throw new ArgumentException($"[Cu1uSFX] The SerializedSFX references a SFX '{SFXName}' that no longer exists.");
-            }
-            return value;
-        }
+//         public SFXReference Play(float volume = 1, float pitch = 1)
+//         {
+//             return SFXPlayer.Play(value, volume, pitch);
+//         }
+//         public SFXReference Play(Vector3 worldPosition, float volume = 1, float pitch = 1)
+//         {
+//             return SFXPlayer.Play(value, worldPosition, volume, pitch);
+//         }
+//         public SFXReference Play(Transform followTransform, float volume = 1, float pitch = 1)
+//         {
+//             return SFXPlayer.Play(value, followTransform, volume, pitch);
+//         }
+//         public SFXReference Play(Transform followTransform, Vector3 followOffset, float volume = 1, float pitch = 1)
+//         {
+//             return SFXPlayer.Play(value, followTransform, followOffset, volume, pitch);
+//         }
 
-        #region Play functions
-
-        public SFXReference Play(float volume = 1, float pitch = 1)
-        {
-            return value.Play(volume, pitch);
-        }
-        public SFXReference Play(Vector3 worldPosition, float volume = 1, float pitch = 1)
-        {
-            return value.Play(worldPosition, volume, pitch);
-        }
-        public SFXReference Play(Transform followTransform, float volume = 1, float pitch = 1)
-        {
-            return value.Play(followTransform, volume, pitch);
-        }
-        public SFXReference Play(Transform followTransform, Vector3 followOffset, float volume = 1, float pitch = 1)
-        {
-            return value.Play(followTransform, followOffset, volume, pitch);
-        }
-
-        #endregion
+//         #endregion
 
 
-        public SerializableSFX(SFX sfx)
-        {
-            value = sfx;
-            SFXName = Enum.GetName(typeof(SFX), sfx);
-            IsValid = !string.IsNullOrEmpty(SFXName);
-        }
+//         public SerializableSFX(PredefinedSFX sfx)
+//         {
+//             value = SFXList.IsValidSFX(sfx) ? sfx : PredefinedSFX.NullValue;
+//             SFXName = SFXList.GetNameOfSFX(sfx);
+//         }
 
-        public static implicit operator SFX(SerializableSFX ssfx) => ssfx.ToSFX();
-        public static explicit operator SerializableSFX(SFX sfx) => new(sfx);
-    }
-}
+//         public static implicit operator PredefinedSFX(SerializableSFX ssfx) => ssfx.Value;
+//         public static explicit operator SerializableSFX(PredefinedSFX sfx) => new(sfx);
+//     }
+// }
