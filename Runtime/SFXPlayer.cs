@@ -7,6 +7,9 @@ using Object = UnityEngine.Object;
 
 namespace Cu1uSFX
 {
+    /// <summary>
+    /// Static class that allows you to play PredefinedSFX and SFXDefinitions. Utilizes object pooling to efficiently supply audio sources for each sound effect.
+    /// </summary>
     public static class SFXPlayer
     {
         static ObjectPool<AudioSource> SourcePool;
