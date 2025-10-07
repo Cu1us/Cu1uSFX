@@ -7,7 +7,6 @@ using Object = UnityEngine.Object;
 
 namespace Cu1uSFX
 {
-    // TODO: Make it a setting to warn when playing 'None' sounds.
     public static class SFXPlayer
     {
         static ObjectPool<AudioSource> SourcePool;
