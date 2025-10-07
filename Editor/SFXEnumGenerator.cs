@@ -9,8 +9,14 @@ using System;
 
 namespace Cu1uSFX.Internal
 {
+    /// <summary>
+    /// The class that generates the SFX enum
+    /// </summary>
     public static class SFXEnumGenerator
     {
+        /// <summary>
+        /// Regenerates the enum script. If you run this manually, make sure to tell Unity to recompile script changes afterwards.
+        /// </summary>
         public static void GenerateEnumScript()
         {
             ref SFXDefinition[] definitions = ref SFXList.Instance.Definitions;
@@ -28,7 +34,12 @@ namespace Cu1uSFX.Internal
             SFXList.MakeSureSFXEnumScriptPathIsValid();
             return SFXList.Instance.SFXEnumScriptPath;
         }
-
+        /// <summary>
+        /// Regenerates the enum script from a specified list of names, onto the script at <paramref name="scriptPath"/>. 
+        /// Index N will be linked to sound effect #N in the Sound Effects menu, regardless of name.
+        /// </summary>
+        /// <param name="enumNames">The names to use for the enums.</param>
+        /// <param name="scriptPath">Path to the script to be overwritten.</param>
         static void GenerateEnumScriptFromNames(string[] enumNames, string scriptPath)
         {
             List<string> addedNames = new();
@@ -61,25 +72,38 @@ namespace Cu1uSFX.Internal
             writer.WriteLine("}");
         }
 
+        /// <summary>
+        /// Turns an unsanitized input string into a code-safe variable/enum name, by stripping non-alphanumeric characters and capping string length, 
+        /// as well as making sure the first character isn't a number.
+        /// </summary>
+        /// <param name="name">The input name to sanitize.</param>
+        /// <returns>Sanitized alphanumeric string.</returns>
         public static string FormatEnumName(string name)
         {
             StringBuilder sb = new();
+            int chars = 0;
             foreach (char c in name)
             {
+                if (chars > 50) break; // Caps length at 50 chars
                 if (char.IsLetter(c))
                 {
                     sb.Append(c);
+                    chars++;
                     continue;
                 }
                 if (char.IsNumber(c) && sb.Length != 0)
                 {
                     sb.Append(c);
+                    chars++;
                     continue;
                 }
             }
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Tries to make unity recompile all scripts.
+        /// </summary>
         public static void RecompileScripts()
         {
 #if UNITY_2019_3_OR_NEWER
@@ -94,6 +118,9 @@ namespace Cu1uSFX.Internal
         [Obsolete] public const string SFX_GENERATED_DIRECTIVE = "SFX_ENUM_GENERATED";
     }
 
+    /// <summary>
+    /// Tools for adding or removing compile defines for all build targets.
+    /// </summary>
     [Obsolete]
     public static class DefineManager
     {

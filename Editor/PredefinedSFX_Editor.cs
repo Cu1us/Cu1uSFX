@@ -5,6 +5,10 @@ using UnityEngine.UIElements;
 
 namespace Cu1uSFX.Internal
 {
+    /// <summary>
+    /// Custom property drawer for making serialized instances of PredefinedSFX be editable through the inspector, via a dropdown menu that lets you 
+    /// pick one of the defined sound effects in the project, ordered by category.
+    /// </summary>
     [CustomPropertyDrawer(typeof(PredefinedSFX))]
     public class PredefinedSFX_Editor : PropertyDrawer
     {

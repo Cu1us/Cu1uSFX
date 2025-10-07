@@ -1,15 +1,23 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Cu1uSFX.Internal
 {
+    /// <summary>
+    /// The singleton ScriptableObject that stores all sound effects that you define in the Sound Effects window.
+    /// </summary>
     public class SFXList : ScriptableObject
     {
         public const string SINGLETON_ASSET_NAME = "SFX List";
 
         static SFXList _instance;
+        /// <summary>
+        /// The instance of this singleton. Guaranteed to always exist: if it isn't loaded, it loads it with Resources.Load() and initializes it. 
+        /// If it doesn't exist, it creates it.
+        /// </summary>
         public static SFXList Instance
         {
             get
@@ -22,6 +30,9 @@ namespace Cu1uSFX.Internal
             }
         }
 
+        /// <summary>
+        /// Makes sure the asset exists and is assigned as the singleton instance, and loads/creates/assigns it if not.
+        /// </summary>
 #if UNITY_EDITOR
         [UnityEditor.InitializeOnLoadMethod]
 #endif
@@ -46,6 +57,10 @@ namespace Cu1uSFX.Internal
         }
 
 #if UNITY_EDITOR
+        /// <summary>
+        /// Makes sure the script defined at the <c>SFXEnumScriptPath</c> exists, and if not, reset the path to default, and create the script if necessary.
+        /// </summary>
+        /// <returns>True if the path already existed.</returns>
         public static bool MakeSureSFXEnumScriptPathIsValid()
         {
             ref string path = ref Instance.SFXEnumScriptPath;
@@ -69,26 +84,39 @@ namespace Cu1uSFX.Internal
                 writer.Close();
                 UnityEditor.AssetDatabase.ImportAsset(path);
 
-                // TextAsset a = new("hello");
-                // UnityEditor.AssetDatabase.CreateAsset(new UnityEditor.MonoScript(), $"Assets/Scripts/SFXEnum.cs");
                 return false;
             }
             return true;
         }
 #endif
 
+        /// <summary>
+        /// Given a PredefinedSFX, returns its name.
+        /// </summary>
+        /// <param name="sfx">The PredefinedSFX to get the name of.</param>
+        /// <returns>The name of the PredefinedSFX, or null if the SFX is invalid.</returns>
         public static string GetNameOfSFX(PredefinedSFX sfx)
         {
             if (!IsValidSFX(sfx))
                 return null;
             return _instance.Definitions[sfx.IndexInSFXList.Value].Name;
         }
+        /// <summary>
+        /// Given an index, returns the name of the SFX at that position in the SFX list.
+        /// </summary>
+        /// <param name="sfx">The index of the SFX to get the name of.</param>
+        /// <returns>The name of the found sfx, or null if the index is out of bounds.</returns>
         public static string GetNameOfSFX(ushort sfx)
         {
             if (sfx >= Instance.Definitions.Length)
                 return null;
             return _instance.Definitions[sfx].Name;
         }
+        /// <summary>
+        /// Loops through all sound effects to find the SFX with the specified name, and returns a PredefinedSFX pointing to it.
+        /// </summary>
+        /// <param name="name">The SFX name to search for.</param>
+        /// <returns>A PredefinedSFX instance pointing to the SFX, or a null value if it isn't found.</returns>
         public static PredefinedSFX GetSFXByName(string name)
         {
             for (ushort i = 0; i < Instance.Definitions.Length; i++)
@@ -98,6 +126,11 @@ namespace Cu1uSFX.Internal
             }
             return PredefinedSFX.NullValue;
         }
+        /// <summary>
+        /// Loops through all sound effects to check if one of them has the specified name.
+        /// </summary>
+        /// <param name="name">The name to look for.</param>
+        /// <returns>True if a SFX with that name exists in the SFX list.</returns>
         public static bool HasSFXWithName(string name)
         {
             for (ushort i = 0; i < Instance.Definitions.Length; i++)
@@ -107,6 +140,11 @@ namespace Cu1uSFX.Internal
             }
             return false;
         }
+        /// <summary>
+        /// Given a name, finds the index of the SFX with that name in the SFX list.
+        /// </summary>
+        /// <param name="name">The name of the SFX to look for.</param>
+        /// <returns>The index of the found SFX, or null if none was found.</returns>
         internal static ushort? GetSFXIDByName(string name)
         {
             for (ushort i = 0; i < Instance.Definitions.Length; i++)
@@ -116,24 +154,53 @@ namespace Cu1uSFX.Internal
             }
             return null;
         }
+        /// <summary>
+        /// Checks if a specified PredefinedSFX points to a valid SFX in the SFX list.
+        /// </summary>
+        /// <param name="sfx">The PredefinedSFX to verify.</param>
+        /// <returns>True if it's valid and safe to use, or false otherwise.</returns>
         public static bool IsValidSFX(PredefinedSFX sfx) => sfx.IndexInSFXList != null && sfx.IndexInSFXList.Value < Instance.Definitions.Length;
+        /// <summary>
+        /// Checks if a specified ushort points to a valid index in the SFX list.
+        /// </summary>
+        /// <param name="sfx">The index to verify the validity of.</param>
+        /// <returns>True if the index is valid, false if it's out of bounds.</returns>
         public static bool IsValidSFX(ushort sfx) => sfx != ushort.MaxValue && sfx < Instance.Definitions.Length;
-        public static SFXDefinition GetDefinitionOfSFX(PredefinedSFX sfx)
-        {
-            return IsValidSFX(sfx) ? Instance.Definitions[sfx.IndexInSFXList.Value] : null;
-        }
-        public static SFXDefinition GetDefinitionOfSFX(ushort sfx)
-        {
-            return IsValidSFX(sfx) ? Instance.Definitions[sfx] : null;
-        }
+        /// <summary>
+        /// Safely gets the SFXDefinition that a specified PredefinedSFX points to.
+        /// </summary>
+        /// <param name="sfx">The PredefinedSFX to get the definition of.</param>
+        /// <returns>The definition of the specified SFX, or null if it's invalid.</returns>
+        public static SFXDefinition GetDefinitionOfSFX(PredefinedSFX sfx) => IsValidSFX(sfx) ? Instance.Definitions[sfx.IndexInSFXList.Value] : null;
+        /// <summary>
+        /// Safely try to get the definition of the SFX at the specified index in the SFX list.
+        /// </summary>
+        /// <param name="sfx">The index of the SFX to get the definition of.</param>
+        /// <returns>The SFXDefinition of the SFX at the specified index, or null if the index is out of bounds.</returns>
+        public static SFXDefinition GetDefinitionOfSFX(ushort sfx) => IsValidSFX(sfx) ? Instance.Definitions[sfx] : null;
 
+        /// <summary>
+        /// Easily accessed list of the currently generated SFX enums.
+        /// </summary>
         public List<string> EnumNames = new();
+        /// <summary>
+        /// The array of defined sound effects, containing the definitions as seen in the Sound Effects window.
+        /// </summary>
         public SFXDefinition[] Definitions;
 #if UNITY_EDITOR
+        /// <summary>
+        /// The path of the script to fill when generating the SFX enum names. Note that changing this to another script or file will permanently overwrite its contents!
+        /// </summary>
         public string SFXEnumScriptPath = "Assets/Scripts/SFXEnum.cs";
 #endif
     }
 
+    /// <summary>
+    /// The definition of a sound effect, containing audio clips, pitch and volume to use.
+    /// </summary>
+    /// <remarks>
+    /// Can be played with <c>SFXPlayer.Play()</c>.
+    /// </remarks>
     [Serializable]
     public record SFXDefinition
     {
@@ -147,33 +214,105 @@ namespace Cu1uSFX.Internal
         [SerializeField] float _pitchMin = 1;
         [SerializeField] float _pitchMax = 1;
 
+        /// <summary>
+        /// The name of the sound effect, as defined in the Sound Effects list.
+        /// </summary>
         public string Name => _name;
+        /// <summary>
+        /// The category of this sound effect. Only used for display purposes.
+        /// </summary>
         public string Category => _category;
+        /// <summary>
+        /// The selection of AudioClips to pick from when playing this sound effect.
+        /// </summary>
         public AudioClip[] Clips => _clips;
+        /// <summary>
+        /// Should this sound's volume be randomized?
+        /// </summary>
+        /// <remarks>
+        /// If true, sampled volume will be between <c>VolumeMin</c> and <c>VolumeMax</c>.
+        /// If false, volume will always be equal to <c>VolumeMin</c>.
+        /// </remarks>
         public bool RandomizeVolume => _randomizeVolume;
+        /// <summary>
+        /// The minimum volume to pick when playing this sound effect. If <c>RandomizeVolume</c> is false, the volume will always be set to this.
+        /// </summary>
+        /// <seealso cref="VolumeMax"/>
+        /// <seealso cref="RandomizeVolume"/>
         public float VolumeMin => _volumeMin;
+        /// <summary>
+        /// The maximum volume to pick when playing this sound effect. If <c>RandomizeVolume</c> is set to true, volume will always be set to <c>VolumeMin</c> instead.
+        /// </summary>
+        /// <seealso cref="VolumeMin"/>
+        /// <seealso cref="RandomizeVolume"/>
         public float VolumeMax => _volumeMax;
+        /// <summary>
+        /// Should this sound's pitch be randomized?
+        /// </summary>
+        /// <remarks>
+        /// If true, sampled pitch will be between <c>PitchMin</c> and <c>PitchMax</c>.
+        /// If false, pitch will always be equal to <c>PitchMin</c>.
+        /// </remarks>
         public bool RandomizePitch => _randomizePitch;
+        /// <summary>
+        /// The minimum pitch to pick when playing this sound effect. If <c>RandomizePitch</c> is false, the pitch will always be set to this.
+        /// </summary>
+        /// <seealso cref="PitchMax"/>
+        /// <seealso cref="RandomizePitch"/>
         public float PitchMin => _pitchMin;
+        /// <summary>
+        /// The maximum pitch to pick when playing this sound effect. If <c>RandomizePitch</c> is set to true, volume will always be set to <c>PitchMin</c> instead.
+        /// </summary>
+        /// <seealso cref="PitchMin"/>
+        /// <seealso cref="RandomizePitch"/>
         public float PitchMax => _pitchMax;
 
+        /// <summary>
+        /// Samples data from this definition, based on its settings, to play from an AudioSource.
+        /// </summary>
+        /// <returns>A tuple containing a selected audio clip, volume, and pitch.</returns>
         public (AudioClip clip, float volume, float pitch) Sample()
         {
             AudioClip clip = _clips.Length == 0 ? null : _clips[Random.Range(0, _clips.Length)];
             float pitch = _randomizePitch ? Random.Range(_pitchMin, _pitchMax) : _pitchMin;
             float volume = _randomizeVolume ? Random.Range(_volumeMin, _volumeMax) : _volumeMin;
+            AudioClip theclip = null;
+            SFXDefinition a = new(theclip);
             return (clip, volume, pitch);
         }
 
+        /// <summary>
+        /// Creates an empty SFXDefinition.
+        /// </summary>
         public SFXDefinition() { }
+        /// <summary>
+        /// Creates an empty SFXDefinition with the specified name and category.
+        /// </summary>
         public SFXDefinition(string name, string category)
         {
             _name = name;
             _category = category;
         }
-        public SFXDefinition(string name = null, float volume = 1, float pitch = 1, params AudioClip[] clips)
+        /// <summary>
+        /// Creates a SFXDefinition from the specified clip(s)
+        /// </summary>
+        /// <param name="clips">The clip(s) to pick from when playing this sound effect.</param>
+        public SFXDefinition(params AudioClip[] clips)
         {
             _clips = clips;
+            _randomizePitch = false;
+            _randomizeVolume = false;
+        }
+        /// <summary>
+        /// Creates a SFXDefinition with the specified clip and data.
+        /// </summary>
+        /// <param name="clip">The audio clip to use for this sound effect.</param>
+        /// <param name="name">The name of this sound effect.</param>
+        /// <param name="volume">The volume to use for this sound effect.</param>
+        /// <param name="pitch">The pitch to use for this sound effect.</param>
+        public SFXDefinition(AudioClip clip, string name = null, float volume = 1, float pitch = 1)
+        {
+            _clips = new AudioClip[] { clip };
             _name = name;
             _volumeMax = volume;
             _volumeMin = volume;
@@ -182,10 +321,38 @@ namespace Cu1uSFX.Internal
             _randomizePitch = false;
             _randomizeVolume = false;
         }
-        public SFXDefinition(string name = null, float volumeMin = 1, float volumeMax = 1, float pitchMin = 1, float pitchMax = 1, params AudioClip[] clips)
+        /// <summary>
+        /// Creates a SFXDefinition with the specified clips and data.
+        /// </summary>
+        /// <param name="clips">The audio clips to pick from when playing this sound effect.</param>
+        /// <param name="name">The name of this sound effect.</param>
+        /// <param name="volume">The volume to use for this sound effect.</param>
+        /// <param name="pitch">The pitch to use for this sound effect.</param>
+        public SFXDefinition(ICollection<AudioClip> clips, string name = null, float volume = 1, float pitch = 1)
         {
-            _clips = clips;
+            _clips = clips.ToArray();
             _name = name;
+            _volumeMax = volume;
+            _volumeMin = volume;
+            _pitchMax = pitch;
+            _pitchMin = pitch;
+            _randomizePitch = false;
+            _randomizeVolume = false;
+        }
+        /// <summary>
+        /// Creates a SFXDefinition with the specified clips and randomized data.
+        /// </summary>
+        /// <param name="clips">The audio clips to pick from when playing this sound effect.</param>
+        /// <param name="name">The name of this sound effect.</param>
+        /// <param name="volumeMin">The minimum volume that can be picked for this sound effect.</param>
+        /// <param name="volumeMax">The maximum volume that can be picked for this sound effect.</param>
+        /// <param name="pitchMin">The minimum pitch that can be picked for this sound effect.</param>
+        /// <param name="pitchMax">The maximum pitch that can be picked for this sound effect.</param>
+        public SFXDefinition(ICollection<AudioClip> clips, string name = null, float volumeMin = 1, float volumeMax = 1, float pitchMin = 1, float pitchMax = 1, string category = null)
+        {
+            _clips = clips.ToArray();
+            _name = name;
+            _category = category;
             _volumeMax = volumeMax;
             _volumeMin = volumeMin;
             _pitchMax = pitchMax;

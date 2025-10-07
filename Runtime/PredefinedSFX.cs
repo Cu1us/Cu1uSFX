@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace Cu1uSFX
 {
+    /// <summary>
+    /// A sound effect that you have defined in the SFX List in the editor. Can be easily edited in the inspector, if serialized.
+    /// </summary>
     [Serializable]
     public struct PredefinedSFX : ISerializationCallbackReceiver
     {
@@ -11,11 +14,28 @@ namespace Cu1uSFX
         internal readonly ushort? IndexInSFXList => _indexInSFXList == ushort.MaxValue ? null : _indexInSFXList;
         [SerializeField, HideInInspector] string SerializedName;
 
+        /// <summary>
+        /// An empty sound effect.
+        /// </summary>
         public readonly static PredefinedSFX NullValue = new(null);
 
+        /// <summary>
+        /// Contains the data of this sound effect; audio clips, pitch, volume, and randomization options.
+        /// </summary>
         public readonly SFXDefinition Definition => SFXList.GetDefinitionOfSFX(this);
+        /// <summary>
+        /// The name of this sound effect, as defined in the Sound Effects menu.
+        /// </summary>
         public readonly string Name => Definition?.Name;
 
+        /// <summary>
+        /// Creates a new PredefinedSFX object with a reference to the sound effect defined at a specific index in the Sound Effects menu.
+        /// </summary>
+        /// <remarks>
+        /// Should only be used if you for whatever reason need a reference to the sound effect at a specific index in the SFX list. Even then,
+        /// you should probably be using <c>SFXList.Instance.Definitions[i]</c> instead (unless you need to serialize this reference, in which case, do use this constructor).
+        /// </remarks>
+        /// <param name="indexInSFXList">The index of the sound effect to reference. Make sure it is not out of bounds.</param>
         public PredefinedSFX(ushort indexInSFXList)
         {
             _indexInSFXList = indexInSFXList;
@@ -35,6 +55,7 @@ namespace Cu1uSFX
                 _indexInSFXList = ushort.MaxValue;
             }
 #if UNITY_EDITOR
+            // Cannot perform the necessary Load calls to access the SFXList instance during serialization - defer it to the next editor tick.
             UnityEditor.EditorApplication.update += HandleAfterDeserialize;
 #endif
         }
@@ -47,6 +68,10 @@ namespace Cu1uSFX
         }
 #endif
 
+        /// <summary>
+        /// Called on serialize/deserialize to make sure the stored index and name are valid and match up. If not, try to recover it. 
+        /// If the SFX List is reordered or modified, this will use the stored SFX name to try to find the new index of the stored sound to preserve validity.
+        /// </summary>
         void VerifyAndRepairValidity()
         {
             if (SFXList.IsValidSFX(_indexInSFXList))
@@ -99,11 +124,7 @@ namespace Cu1uSFX
             }
         }
 
-        public readonly override string ToString()
-        {
-            return $"[SFX '{Name}']";
-        }
-
+        public readonly override string ToString() => $"[SFX '{Name}']";
         public static explicit operator ushort?(PredefinedSFX sfx) => sfx.IndexInSFXList;
     }
 }

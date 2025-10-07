@@ -7,6 +7,9 @@ using UnityEngine.UIElements;
 
 namespace Cu1uSFX.Internal
 {
+    /// <summary>
+    /// The main editor window class for the sound effect list.
+    /// </summary>
     public class SFX_Window_Editor : EditorWindow
     {
         TabView CategoryTabView;
@@ -214,7 +217,7 @@ namespace Cu1uSFX.Internal
             return false;
         }
 
-        public override void SaveChanges()
+        public override void SaveChanges() // This is the piece of code that regenerates the enum when changes are saved
         {
             SaveChangesButton.enabledSelf = false;
             SFXEnumGenerator.GenerateEnumScript();
@@ -226,6 +229,10 @@ namespace Cu1uSFX.Internal
             base.DiscardChanges();
         }
 
+        /// <summary>
+        /// Shows the sound effects list, or creates a window for it if it doesn't exist. 
+        /// This is run when the user clicks Window/SFX Editor.
+        /// </summary>
         [MenuItem("Window/SFX Editor")]
         public static void Spawn()
         {
@@ -236,7 +243,9 @@ namespace Cu1uSFX.Internal
         }
     }
 
-
+    /// <summary>
+    /// The editor class for the SFX editing window that lets you change the settings of a specific sound effect, such as adding new clips or changing volume
+    /// </summary>
     public class SFX_EditSFXWindow_Editor : EditorWindow
     {
         SerializedProperty SfxProperty;
@@ -523,7 +532,7 @@ namespace Cu1uSFX.Internal
             OnObjectUpdated?.Invoke();
         }
 
-        void PreviewSound()
+        void PreviewSound() // Spawns a temporary, non-saveable gameobject with an audiosource that plays the specified sound effect.
         {
             if (EditorUtility.audioMasterMute)
             {
@@ -561,6 +570,7 @@ namespace Cu1uSFX.Internal
                 PreviewSoundSource = previewSoundObject.GetComponent<AudioSource>();
             }
             bool wasPlaying = PreviewSoundSource.isPlaying;
+            // The button can be pressed again to stop the preview if the sound effect would be longer than STOPPABLE_PREVIEW_MIN_LENGTH.
             bool stoppable = PreviewSoundSource.clip != null && PreviewSoundSource.clip.length / PreviewSoundSource.pitch >= STOPPABLE_PREVIEW_MIN_LENGTH;
             if (wasPlaying)
                 PreviewSoundSource.Stop();
@@ -587,7 +597,7 @@ namespace Cu1uSFX.Internal
             PreviewButtonErrorLabel.visible = false;
         }
 
-        void OnDisable()
+        void OnDisable() // Destroy the preview sound source whenever the window is closed or destroyed
         {
             if (PreviewSoundSource != null)
             {
@@ -597,6 +607,9 @@ namespace Cu1uSFX.Internal
         }
     }
 
+    /// <summary>
+    /// The small modal window for adding a new SFX to the SFX list.
+    /// </summary>
     public class SFX_NewSFXWindow_Editor : EditorWindow
     {
         SerializedProperty DefinitionsProperty;
@@ -632,7 +645,7 @@ namespace Cu1uSFX.Internal
             {
                 style = { marginTop = 20, marginBottom = 20 }
             };
-            ErrorLabel = new("errors go here")
+            ErrorLabel = new()
             {
                 visible = false,
                 style = { color = Color.red }

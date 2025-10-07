@@ -3,6 +3,9 @@ using UnityEditor;
 
 namespace Cu1uSFX.Internal
 {
+    /// <summary>
+    /// The inspector for the SFX List ScriptableObject.
+    /// </summary>
     [CustomEditor(typeof(SFXList))]
     public class SFXList_Editor : Editor
     {

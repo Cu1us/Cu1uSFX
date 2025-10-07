@@ -50,23 +50,58 @@ namespace Cu1uSFX
 
         #region Play functions
 
+        /// <summary>
+        /// Play this SFX globally.
+        /// </summary>
+        /// <param name="sfx">The SFX to play.</param>
+        /// <param name="volume">The volume multiplier to use when playing the sound.</param>
+        /// <param name="pitch">The pitch multiplier to use when playing the sound.</param>
         public static SFXReference Play(this PredefinedSFX sfx, float volume = 1, float pitch = 1)
         {
             return Play(sfx.Definition, volume, pitch);
         }
+        /// <summary>
+        /// Play this SFX at a specified world position.
+        /// </summary>
+        /// <param name="sfx">The SFX to play.</param>
+        /// <param name="worldPosition">The world space position to play the sound at.</param>
+        /// <param name="volume">The volume multiplier to use when playing the sound.</param>
+        /// <param name="pitch">The pitch multiplier to use when playing the sound.</param>
         public static SFXReference Play(this PredefinedSFX sfx, Vector3 worldPosition, float volume = 1, float pitch = 1)
         {
             return Play(sfx.Definition, worldPosition, volume, pitch);
         }
+        /// <summary>
+        /// Play this SFX, making the audio source follow the specified transform.
+        /// </summary>
+        /// <param name="sfx">The SFX to play.</param>
+        /// <param name="transformToFollow">The transform to follow. (The AudioSource will not be childed to this transform)</param>
+        /// <param name="volume">The volume multiplier to use when playing the sound.</param>
+        /// <param name="pitch">The pitch multiplier to use when playing the sound.</param>
         public static SFXReference Play(this PredefinedSFX sfx, Transform transformToFollow, float volume = 1, float pitch = 1)
         {
             return Play(sfx.Definition, transformToFollow, volume, pitch);
         }
+        /// <summary>
+        /// Play this SFX, making the audio source follow the specified transform at a specified offset.
+        /// </summary>
+        /// <param name="sfx">The SFX to play.</param>
+        /// <param name="transformToFollow">The transform to follow. (The AudioSource will not be childed to this transform)</param>
+        /// <param name="followOffset">The local-space offset from the transform that the AudioSource should follow at.</param>
+        /// <param name="volume">The volume multiplier to use when playing the sound.</param>
+        /// <param name="pitch">The pitch multiplier to use when playing the sound.</param>
+        /// <returns></returns>
         public static SFXReference Play(this PredefinedSFX sfx, Transform transformToFollow, Vector3 followOffset, float volume = 1, float pitch = 1)
         {
             return Play(sfx.Definition, transformToFollow, followOffset, volume, pitch);
         }
 
+        /// <summary>
+        /// Play this SFX globally.
+        /// </summary>
+        /// <param name="sfx">The SFX to play.</param>
+        /// <param name="volume">The volume multiplier to use when playing the sound.</param>
+        /// <param name="pitch">The pitch multiplier to use when playing the sound.</param>
         public static SFXReference Play(this SFXDefinition sfx, float volume = 1, float pitch = 1)
         {
             if (sfx == null)
@@ -85,6 +120,13 @@ namespace Cu1uSFX
             sfxRef?.Handler.Play();
             return sfxRef;
         }
+        /// <summary>
+        /// Play this SFX at a specified world position.
+        /// </summary>
+        /// <param name="sfx">The SFX to play.</param>
+        /// <param name="worldPosition">The world space position to play the sound at.</param>
+        /// <param name="volume">The volume multiplier to use when playing the sound.</param>
+        /// <param name="pitch">The pitch multiplier to use when playing the sound.</param>
         public static SFXReference Play(this SFXDefinition sfx, Vector3 worldPosition, float volume = 1, float pitch = 1)
         {
             if (sfx == null)
@@ -103,6 +145,13 @@ namespace Cu1uSFX
             sfxRef?.Handler.Play(worldPosition);
             return sfxRef;
         }
+        /// <summary>
+        /// Play this SFX, making the audio source follow the specified transform.
+        /// </summary>
+        /// <param name="sfx">The SFX to play.</param>
+        /// <param name="transformToFollow">The transform to follow. (The AudioSource will not be childed to this transform)</param>
+        /// <param name="volume">The volume multiplier to use when playing the sound.</param>
+        /// <param name="pitch">The pitch multiplier to use when playing the sound.</param>
         public static SFXReference Play(this SFXDefinition sfx, Transform transformToFollow, float volume = 1, float pitch = 1)
         {
             if (sfx == null)
@@ -121,6 +170,15 @@ namespace Cu1uSFX
             sfxRef?.Handler.Play(transformToFollow);
             return sfxRef;
         }
+        /// <summary>
+        /// Play this SFX, making the audio source follow the specified transform at a specified offset.
+        /// </summary>
+        /// <param name="sfx">The SFX to play.</param>
+        /// <param name="transformToFollow">The transform to follow. (The AudioSource will not be childed to this transform)</param>
+        /// <param name="followOffset">The local-space offset from the transform that the AudioSource should follow at.</param>
+        /// <param name="volume">The volume multiplier to use when playing the sound.</param>
+        /// <param name="pitch">The pitch multiplier to use when playing the sound.</param>
+        /// <returns></returns>
         public static SFXReference Play(this SFXDefinition sfx, Transform transformToFollow, Vector3 followOffset, float volume = 1, float pitch = 1)
         {
             if (sfx == null)
@@ -142,6 +200,10 @@ namespace Cu1uSFX
 
         #endregion
 
+        /// <summary>
+        /// Stops all currently playing sound effects.
+        /// </summary>
+        /// <returns>The amount of sound effects that were stopped.</returns>
         public static int StopAll()
         {
             int count = 0;
@@ -152,6 +214,11 @@ namespace Cu1uSFX
             }
             return count;
         }
+        /// <summary>
+        /// Stops the specified sound effect.
+        /// </summary>
+        /// <param name="sfxReference">The reference to the sound effect to stop.</param>
+        /// <param name="runFinishedCallback"></param>
         public static void Stop(this SFXReference sfxReference, bool runFinishedCallback = true)
         {
             sfxReference.Stop();
@@ -195,21 +262,61 @@ namespace Cu1uSFX
     }
     public class SFXReference
     {
-        readonly public AudioSource AudioSource;
+        AudioSource _audioSource;
+        /// <summary>
+        /// The audio source component that this reference refers to.
+        /// </summary>
+        /// <remarks>
+        /// Note: If you make changes to this, you must revert them before the source is put back into the object pool! This can be bound to <c>OnFinishedPlaying</c>.
+        /// </remarks>
+        public AudioSource AudioSource => _audioSource;
+        /// <summary>
+        /// The audio source handler component that this reference refers to.
+        /// </summary>
+        /// <remarks>
+        /// Note: If you make changes to this, you must revert them before the source is put back into the object pool! This can be bound to <c>OnFinishedPlaying</c>.
+        /// </remarks>
         readonly internal SFXHandler Handler;
+        /// <summary>
+        /// Callback that is executed when the source has finished playing, just before this reference becomes invalid.
+        /// </summary>
         public Action OnFinishedPlaying;
+        /// <summary>
+        /// Is this reference valid?
+        /// </summary>
+        /// <remarks>
+        /// A SFXReference becomes invalid when its referenced sound finishes playing, or is stopped.
+        /// </remarks>
         public bool IsValid { get; private set; } = true;
 
+        /// <summary>
+        /// The volume multiplier for this sound effect.
+        /// </summary>
+        /// <remarks>
+        /// This modifier always starts out at 1, and acts multiplicatively along with any random volume defined in the Sound Effects list.
+        /// </remarks>
         public float Volume
         {
             get => IsValid ? AudioSource.volume / InitialVolume : float.NaN;
             set { if (IsValid) { AudioSource.volume = value * InitialVolume; } }
         }
+        /// <summary>
+        /// The pitch multiplier for this sound effect.
+        /// </summary>
+        /// <remarks>
+        /// This modifier always starts out at 1, and acts multiplicatively along with any random pitch defined in the Sound Effects list.
+        /// </remarks>
         public float Pitch
         {
             get => IsValid ? AudioSource.pitch / InitialPitch : float.NaN;
             set { if (IsValid) { AudioSource.pitch = value * InitialPitch; } }
         }
+        /// <summary>
+        /// The world-space position that this sound is being played at.
+        /// </summary>
+        /// <remarks>
+        /// Set to null to make the sound play globally. Changing this value while the sound is following a transform will cause it to stop following it.
+        /// </remarks>
         public Vector3? WorldPosition
         {
             get => IsValid && AudioSource.spatialize ? AudioSource.transform.position : null;
@@ -217,13 +324,20 @@ namespace Cu1uSFX
             {
                 if (IsValid)
                 {
+                    Handler.FollowTransform = null;
                     AudioSource.spatialize = value == null;
                     AudioSource.transform.position = value == null ? default : value.Value;
                 }
             }
         }
+        /// <summary>
+        /// Makes the sound follow a specific transform, optionally with an offset.
+        /// </summary>
+        /// <param name="transform">The transform to follow.</param>
+        /// <param name="localOffset">The local-space offset relative to the transform to position the sound at.</param>
         public void FollowTransform(Transform transform, Vector3 localOffset = default)
         {
+            if (!IsValid || !Handler) return;
             Handler.FollowTransform = transform;
             Handler.FollowTransformLocalOffset = localOffset;
             AudioSource.spatialize = true;
@@ -232,19 +346,30 @@ namespace Cu1uSFX
         {
             OnFinishedPlaying?.Invoke();
             OnFinishedPlaying = null;
+            _audioSource = null;
             IsValid = false;
         }
+        /// <summary>
+        /// Stops the sound, and disposes this reference.
+        /// </summary>
         public void Stop()
         {
-            Handler.Stop();
+            if (IsValid && Handler)
+                Handler.Stop();
         }
 
+        /// <summary>
+        /// The pitch that this sound was originally played at, as defined in the Sound Effects list.
+        /// </summary>
         public readonly float InitialPitch;
+        /// <summary>
+        /// The volume that this sound was originally played at, as defined in the Sound Effects list.
+        /// </summary>
         public readonly float InitialVolume;
 
         internal SFXReference(AudioSource audioSource, SFXHandler handler)
         {
-            AudioSource = audioSource;
+            _audioSource = audioSource;
             Handler = handler;
             InitialPitch = audioSource.pitch;
             InitialVolume = audioSource.volume;
