@@ -28,7 +28,7 @@ namespace Cu1uSFX.Internal
 
             if (definitionsProp == null)
             {
-                Debug.LogError("[Cu1uSFX] Error: Sounds array is null");
+                SFXList.LogErrorIfFlag(SFXLogFlags.INTERNAL_ERROR_CRITICAL, "[Cu1uSFX] Error: Could not find serialized property for " + nameof(SFXList.Definitions));
                 return content;
             }
 

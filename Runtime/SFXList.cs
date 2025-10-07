@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
+using Object = UnityEngine.Object;
 
 namespace Cu1uSFX.Internal
 {
@@ -31,6 +32,25 @@ namespace Cu1uSFX.Internal
         }
 
         /// <summary>
+        /// Easily accessed list of the currently generated SFX enums.
+        /// </summary>
+        public List<string> EnumNames = new();
+        /// <summary>
+        /// The array of defined sound effects, containing the definitions as seen in the Sound Effects window.
+        /// </summary>
+        public SFXDefinition[] Definitions;
+#if UNITY_EDITOR
+        /// <summary>
+        /// The path of the script to fill when generating the SFX enum names. Note that changing this to another script or file will permanently overwrite its contents!
+        /// </summary>
+        public string SFXEnumScriptPath = "Assets/Scripts/SFXEnum.cs";
+#endif
+
+        public SFXLogFlags LogFlags = SFXLogFlags.DEFAULT;
+        [Min(1)] public int AudioSourcePoolMax = 10;
+        [Min(0)] public int AudioSourcePoolDefault = 3;
+
+        /// <summary>
         /// Makes sure the asset exists and is assigned as the singleton instance, and loads/creates/assigns it if not.
         /// </summary>
 #if UNITY_EDITOR
@@ -48,7 +68,7 @@ namespace Cu1uSFX.Internal
                     UnityEditor.AssetDatabase.CreateFolder("Assets", "Resources");
                 }
                 UnityEditor.AssetDatabase.CreateAsset(_instance, $"Assets/Resources/{SINGLETON_ASSET_NAME}.asset");
-                Debug.Log($"[Cu1uSFX] Created a new SFX List asset at '/Assets/Resources/{SINGLETON_ASSET_NAME}'!", _instance);
+                LogIfFlag(SFXLogFlags.NOTIF_INFO, $"[Cu1uSFX] Created a new SFX List asset at '/Assets/Resources/{SINGLETON_ASSET_NAME}'!", _instance);
 #endif
             }
 #if UNITY_EDITOR
@@ -179,20 +199,54 @@ namespace Cu1uSFX.Internal
         /// <returns>The SFXDefinition of the SFX at the specified index, or null if the index is out of bounds.</returns>
         public static SFXDefinition GetDefinitionOfSFX(ushort sfx) => IsValidSFX(sfx) ? Instance.Definitions[sfx] : null;
 
-        /// <summary>
-        /// Easily accessed list of the currently generated SFX enums.
-        /// </summary>
-        public List<string> EnumNames = new();
-        /// <summary>
-        /// The array of defined sound effects, containing the definitions as seen in the Sound Effects window.
-        /// </summary>
-        public SFXDefinition[] Definitions;
-#if UNITY_EDITOR
-        /// <summary>
-        /// The path of the script to fill when generating the SFX enum names. Note that changing this to another script or file will permanently overwrite its contents!
-        /// </summary>
-        public string SFXEnumScriptPath = "Assets/Scripts/SFXEnum.cs";
-#endif
+        public static void LogIfFlag(SFXLogFlags flag, string message)
+        {
+            if ((Instance.LogFlags & flag) == flag)
+                Debug.Log(message);
+        }
+        public static void LogIfFlag(SFXLogFlags flag, string message, Object context)
+        {
+            if ((Instance.LogFlags & flag) == flag)
+                Debug.Log(message, context);
+        }
+        public static void LogWarningIfFlag(SFXLogFlags flag, string message)
+        {
+            if ((Instance.LogFlags & flag) == flag)
+                Debug.LogWarning(message);
+        }
+        public static void LogWarningIfFlag(SFXLogFlags flag, string message, Object context)
+        {
+            if ((Instance.LogFlags & flag) == flag)
+                Debug.LogWarning(message, context);
+        }
+        public static void LogErrorIfFlag(SFXLogFlags flag, string message)
+        {
+            if ((Instance.LogFlags & flag) == flag)
+                Debug.LogError(message);
+        }
+        public static void LogErrorIfFlag(SFXLogFlags flag, string message, Object context)
+        {
+            if ((Instance.LogFlags & flag) == flag)
+                Debug.LogError(message, context);
+        }
+    }
+
+    /// <summary>
+    /// Enum for determining the types of logs that the Cu1uSFX plugin should send.
+    /// </summary>
+    [Flags]
+    public enum SFXLogFlags : byte
+    {
+        [InspectorName("No logs")] NONE = 0,
+        [InspectorName("Errors/Critical")] INTERNAL_ERROR_CRITICAL = 1,
+        [InspectorName("Errors/Non-critical")] INTERNAL_ERROR_NONCRITICAL = 2,
+        [InspectorName("Info/Basic")] NOTIF_INFO = 4,
+        [InspectorName("Info/Verbose")] NOTIF_VERBOSE = 8,
+        [InspectorName("Warnings/Playing 'NONE' sounds")] NULL_SFX_PLAYED = 16,
+        [InspectorName("Warnings/Playing SFX with no clips")] SFX_HAD_NULL_CLIP = 32,
+        [InspectorName("Warnings/Playing SFX in edit mode")] PLAYING_IN_EDIT_MODE = 64,
+        [InspectorName("Warnings/Using expired SFXReference")] SFXREF_EXPIRED = 128,
+        [InspectorName("Default settings")] DEFAULT = INTERNAL_ERROR_CRITICAL | INTERNAL_ERROR_NONCRITICAL | NOTIF_INFO | SFX_HAD_NULL_CLIP | PLAYING_IN_EDIT_MODE
     }
 
     /// <summary>

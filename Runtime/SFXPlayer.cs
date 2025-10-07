@@ -19,7 +19,8 @@ namespace Cu1uSFX
 
             if (clip == null)
             {
-                Debug.LogWarning($"[Cu1uSFX] Failed to play SFX '{sfx.Name}': Sampling returned a null AudioClip! Does it not have any clips assigned?");
+                SFXList.LogWarningIfFlag(SFXLogFlags.SFX_HAD_NULL_CLIP,
+                $"[Cu1uSFX] Failed to play SFX '{sfx.Name}': Sampling returned a null AudioClip! Does it not have any clips assigned?");
                 return null;
             }
 
@@ -106,13 +107,13 @@ namespace Cu1uSFX
         {
             if (sfx == null)
             {
-                Debug.LogWarning("[Cu1uSFX] Warning: Tried to play a 'None' sound.");
+                SFXList.LogWarningIfFlag(SFXLogFlags.NULL_SFX_PLAYED, "[Cu1uSFX] Warning: Tried to play a 'None' sound.");
                 return null;
             }
 #if UNITY_EDITOR
             if (!Application.isPlaying)
             {
-                Debug.LogError("[Cu1uSFX] Error: Cannot play sounds outside of play mode!");
+                SFXList.LogWarningIfFlag(SFXLogFlags.PLAYING_IN_EDIT_MODE, "[Cu1uSFX] Warning: Cannot play sounds outside of play mode!");
                 return null;
             }
 #endif
@@ -131,14 +132,13 @@ namespace Cu1uSFX
         {
             if (sfx == null)
             {
-                Debug.LogWarning("[Cu1uSFX] Warning: Tried to play a 'None' sound.");
+                SFXList.LogWarningIfFlag(SFXLogFlags.NULL_SFX_PLAYED, "[Cu1uSFX] Warning: Tried to play a 'None' sound.");
                 return null;
             }
 #if UNITY_EDITOR
             if (!Application.isPlaying)
             {
-                Debug.LogError("[Cu1uSFX] Error: Cannot play sounds outside of play mode!");
-                return null;
+                SFXList.LogWarningIfFlag(SFXLogFlags.PLAYING_IN_EDIT_MODE, "[Cu1uSFX] Warning: Cannot play sounds outside of play mode!");
             }
 #endif
             SFXReference sfxRef = PrepareAudioSource(sfx, volume, pitch);
@@ -156,14 +156,13 @@ namespace Cu1uSFX
         {
             if (sfx == null)
             {
-                Debug.LogWarning("[Cu1uSFX] Warning: Tried to play a 'None' sound.");
+                SFXList.LogWarningIfFlag(SFXLogFlags.NULL_SFX_PLAYED, "[Cu1uSFX] Warning: Tried to play a 'None' sound.");
                 return null;
             }
 #if UNITY_EDITOR
             if (!Application.isPlaying)
             {
-                Debug.LogError("[Cu1uSFX] Error: Cannot play sounds outside of play mode!");
-                return null;
+                SFXList.LogWarningIfFlag(SFXLogFlags.PLAYING_IN_EDIT_MODE, "[Cu1uSFX] Warning: Cannot play sounds outside of play mode!");
             }
 #endif
             SFXReference sfxRef = PrepareAudioSource(sfx, volume, pitch);
@@ -183,14 +182,13 @@ namespace Cu1uSFX
         {
             if (sfx == null)
             {
-                Debug.LogWarning("[Cu1uSFX] Warning: Tried to play a 'None' sound.");
+                SFXList.LogWarningIfFlag(SFXLogFlags.NULL_SFX_PLAYED, "[Cu1uSFX] Warning: Tried to play a 'None' sound.");
                 return null;
             }
 #if UNITY_EDITOR
             if (!Application.isPlaying)
             {
-                Debug.LogError("[Cu1uSFX] Error: Cannot play sounds outside of play mode!");
-                return null;
+                SFXList.LogWarningIfFlag(SFXLogFlags.PLAYING_IN_EDIT_MODE, "[Cu1uSFX] Warning: Cannot play sounds outside of play mode!");
             }
 #endif
             SFXReference sfxRef = PrepareAudioSource(sfx, volume, pitch);
@@ -232,8 +230,8 @@ namespace Cu1uSFX
                 actionOnGet: PoolGet,
                 actionOnDestroy: PoolDestroy,
                 actionOnRelease: PoolRelease,
-                defaultCapacity: 3,
-                maxSize: 10
+                defaultCapacity: SFXList.Instance.AudioSourcePoolDefault,
+                maxSize: SFXList.Instance.AudioSourcePoolMax
             );
         }
         static AudioSource PoolCreate()
@@ -244,6 +242,7 @@ namespace Cu1uSFX
             };
             Object.DontDestroyOnLoad(go);
             AudioSource source = go.GetComponent<AudioSource>();
+            SFXList.LogIfFlag(SFXLogFlags.NOTIF_VERBOSE, "[Cu1uSFX] Instantiated new AudioSource", go);
             return source;
         }
         static void PoolGet(AudioSource source)
@@ -257,6 +256,7 @@ namespace Cu1uSFX
         }
         static void PoolDestroy(AudioSource source)
         {
+            SFXList.LogIfFlag(SFXLogFlags.NOTIF_VERBOSE, "[Cu1uSFX] Destroyed overflow AudioSource", source.gameObject);
             Object.Destroy(source.gameObject);
         }
     }
@@ -298,7 +298,14 @@ namespace Cu1uSFX
         public float Volume
         {
             get => IsValid ? AudioSource.volume / InitialVolume : float.NaN;
-            set { if (IsValid) { AudioSource.volume = value * InitialVolume; } }
+            set
+            {
+                if (IsValid) { AudioSource.volume = value * InitialVolume; }
+                else
+                {
+                    SFXList.LogWarningIfFlag(SFXLogFlags.SFXREF_EXPIRED, $"[Cu1uSFX] Script attempted to set {nameof(Volume)} on an expired SFXReference.");
+                }
+            }
         }
         /// <summary>
         /// The pitch multiplier for this sound effect.
@@ -309,7 +316,14 @@ namespace Cu1uSFX
         public float Pitch
         {
             get => IsValid ? AudioSource.pitch / InitialPitch : float.NaN;
-            set { if (IsValid) { AudioSource.pitch = value * InitialPitch; } }
+            set
+            {
+                if (IsValid) { AudioSource.pitch = value * InitialPitch; }
+                else
+                {
+                    SFXList.LogWarningIfFlag(SFXLogFlags.SFXREF_EXPIRED, $"[Cu1uSFX] Script attempted to set {nameof(Pitch)} on an expired SFXReference.");
+                }
+            }
         }
         /// <summary>
         /// The world-space position that this sound is being played at.
@@ -328,6 +342,10 @@ namespace Cu1uSFX
                     AudioSource.spatialize = value == null;
                     AudioSource.transform.position = value == null ? default : value.Value;
                 }
+                else
+                {
+                    SFXList.LogWarningIfFlag(SFXLogFlags.SFXREF_EXPIRED, $"[Cu1uSFX] Script attempted to set {nameof(WorldPosition)} on an expired SFXReference.");
+                }
             }
         }
         /// <summary>
@@ -337,7 +355,11 @@ namespace Cu1uSFX
         /// <param name="localOffset">The local-space offset relative to the transform to position the sound at.</param>
         public void FollowTransform(Transform transform, Vector3 localOffset = default)
         {
-            if (!IsValid || !Handler) return;
+            if (!IsValid || !Handler)
+            {
+                SFXList.LogWarningIfFlag(SFXLogFlags.SFXREF_EXPIRED, $"[Cu1uSFX] Script attempted to invoke {nameof(FollowTransform)} on an expired SFXReference.");
+                return;
+            }
             Handler.FollowTransform = transform;
             Handler.FollowTransformLocalOffset = localOffset;
             AudioSource.spatialize = true;
@@ -356,6 +378,8 @@ namespace Cu1uSFX
         {
             if (IsValid && Handler)
                 Handler.Stop();
+            else
+                SFXList.LogWarningIfFlag(SFXLogFlags.SFXREF_EXPIRED, $"[Cu1uSFX] Script attempted to stop an expired SFXReference.");
         }
 
         /// <summary>
