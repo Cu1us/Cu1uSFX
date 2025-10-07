@@ -1,11 +1,6 @@
-using UnityEditor;
-using UnityEditor.Build;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Text;
 using System.IO;
-using UnityEngine;
-using System;
 
 // Cu1uSFX Sound Effect Plugin
 // Copyright (C) 2025  Måns Fritiofsson
@@ -130,65 +125,6 @@ namespace Cu1uSFX.Internal
             System.Reflection.MethodInfo dirtyAllScriptsMethod = editorCompilationInterfaceType.GetMethod("DirtyAllScripts", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
             dirtyAllScriptsMethod.Invoke(editorCompilationInterfaceType, null);
 #endif
-        }
-        [Obsolete] public const string SFX_GENERATED_DIRECTIVE = "SFX_ENUM_GENERATED";
-    }
-
-    /// <summary>
-    /// Tools for adding or removing compile defines for all build targets.
-    /// </summary>
-    [Obsolete]
-    public static class DefineManager
-    {
-        public static void AddCompileDefine(string newDefineConstant)
-        {
-            foreach (NamedBuildTarget buildTarget in GetNamedBuildTargets())
-            {
-                string definesString = PlayerSettings.GetScriptingDefineSymbols(buildTarget);
-                List<string> defines = new(definesString.Split(';'));
-                if (defines.Contains(newDefineConstant))
-                {
-                    continue;
-                }
-                defines.Add(newDefineConstant);
-                StringBuilder sb = new();
-                sb.AppendJoin(';', defines);
-                PlayerSettings.SetScriptingDefineSymbols(buildTarget, sb.ToString());
-            }
-        }
-
-        public static void RemoveCompileDefine(string defineConstant)
-        {
-            foreach (NamedBuildTarget buildTarget in GetNamedBuildTargets())
-            {
-                string definesString = PlayerSettings.GetScriptingDefineSymbols(buildTarget);
-                List<string> defines = new(definesString.Split(';'));
-                if (!defines.Contains(defineConstant))
-                {
-                    continue;
-                }
-                defines.Remove(defineConstant);
-                StringBuilder sb = new();
-                sb.AppendJoin(';', defines);
-                PlayerSettings.SetScriptingDefineSymbols(buildTarget, sb.ToString());
-            }
-        }
-
-        static List<NamedBuildTarget> GetNamedBuildTargets()
-        {
-            List<NamedBuildTarget> targets = new();
-            BuildTargetGroup[] groups = {
-                BuildTargetGroup.Standalone,
-                BuildTargetGroup.iOS,
-                BuildTargetGroup.Android,
-                BuildTargetGroup.WebGL
-            };
-            foreach (BuildTargetGroup group in groups)
-            {
-                NamedBuildTarget namedTarget = NamedBuildTarget.FromBuildTargetGroup(group);
-                targets.Add(namedTarget);
-            }
-            return targets;
         }
     }
 }
