@@ -35,14 +35,14 @@ public class Example : MonoBehaviour
 }
 ```
 
-You can also expose these in the inspector like this:
+You can also allow sound effect selection from the inspector like this:
 ```cs
 using Cu1uSFX;
 public class SimpleSfxPlayer : MonoBehaviour
 {
     [SerializeField] PredefinedSFX predefinedSfx; // Choose one of your defined sound effects from a dropdown in the inspector
 
-    [SerializeField] SFXDefinition locallyDefinedSfx; // Define a new sound effect in the inspector for this object only, with its own audio clips, pitch etc.
+    [SerializeField] SFXDefinition locallyDefinedSfx; // Define a new sound effect in the inspector for this object only, with its own audio clips, pitch, etc.
 
     public void PlaySounds()
     {
