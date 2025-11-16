@@ -6,7 +6,15 @@ Check out *Quickstart.md* to get a quick explanation on how to use the plugin.
 
 
 ## What features does this have?
-Check out *Tips and Tricks.md* for a list of features and tips and tricks!
+- Convenient editor window where you can define any number of named sound effects with a visual UI, and group them by categories.
+- Define sound effects with randomized volume, pitch, and any number of audio clips.
+- Preview sound effects in the editor while creating them!
+- Play these sound effects anywhere in your game with a single line of code.
+
+### Extras
+- Play AudioClips from anywhere with the .Play() extension method.
+- Sounds can be played globally, at a specific position, following a specific transform, and have their pitch/volume/position changed mid-playback.
+- Create per-object sound effects in the inspector, or select from your predefined ones using a dropdown.
 
 
 ## How does it work?
@@ -28,9 +36,11 @@ The Play()-functions return a ``SFXReference`` handle that you can use to change
 
 Once the AudioSource has finished playing, the SFXReference's ``IsValid`` will become false, after which you should not use it, since the AudioSource it references will have been put back in the object pool. The class has checks to prevent editing it if it's invalid, but might fail if you cache the reference to the now-disabled AudioSource in your own scripts.
 
+## Removing the package
+If you have removed the package from the Package Manager, you should also delete the SFX List asset (by default located in Assets/Resources/) and the SFXEnum script (by default located in Assets/Scripts/), as these will no longer be necessary. Deleting the SFX List asset will delete all your defined sound effects, making them unrecoverable even if you reinstall the package.
+
 
 If you have any issues with the package or need help, feel free to contact me on discord @ cu1us.
-
 
 
 Copyright © 2025 Måns Fritiofsson

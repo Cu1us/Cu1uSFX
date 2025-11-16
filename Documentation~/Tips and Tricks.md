@@ -56,17 +56,17 @@ using Cu1uSFX;
 
 public class Example : MonoBehaviour
 {
-    [SerializeField] PredefinedSFX A; // Enum dropdown of your created SFXs
-    [SerializeField] SFXDefinition B; // New SFX that you can edit through a window
+    [SerializeField] PredefinedSFX predefinedSfx; // Enum dropdown of your created SFXs
+    [SerializeField] SFXDefinition locallyDefinedSfx; // New SFX that you can edit through a window
 
     void PlaySounds()
     {
-        A.Play();
-        B.Play();
+        predefinedSfx.Play();
+        locallyDefinedSfx.Play();
     }
 }
 ```
-
+These can both be defined in ScriptableObjects too, and referenced and played from there.
 
 ### Defining sound effects in runtime
 You can create a new SFXDefinition class instance at runtime too, then play it freely as if it was any other SFX. Use any of the constructors - for example `new SFXDefinition(clipA, clipB);` or `new SFXDefinition(new AudioClip[] {clipA, clipB}, volume, pitch);`. You can then play it using `sfxDefinition.Play();` or `SFXPlayer.Play(sfxDefinition);`
