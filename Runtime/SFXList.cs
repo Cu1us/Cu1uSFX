@@ -274,6 +274,7 @@ namespace Cu1uSFX.Internal
     [Serializable]
     public record SFXDefinition
     {
+#pragma warning disable IDE0044 // Suppress IDE044: Add readonly modifier
         [SerializeField] string _name;
         [SerializeField] string _category;
         [SerializeField] AudioClip[] _clips;
@@ -283,6 +284,7 @@ namespace Cu1uSFX.Internal
         [SerializeField] bool _randomizePitch;
         [SerializeField] float _pitchMin = 1;
         [SerializeField] float _pitchMax = 1;
+#pragma warning restore IDE0044 // Suppress IDE0044: Add readonly modifier
 
         /// <summary>
         /// The name of the sound effect, as defined in the Sound Effects list.
@@ -377,10 +379,10 @@ namespace Cu1uSFX.Internal
         /// Creates a SFXDefinition with the specified clip and data.
         /// </summary>
         /// <param name="clip">The audio clip to use for this sound effect.</param>
-        /// <param name="name">The name of this sound effect.</param>
         /// <param name="volume">The volume to use for this sound effect.</param>
         /// <param name="pitch">The pitch to use for this sound effect.</param>
-        public SFXDefinition(AudioClip clip, string name = null, float volume = 1, float pitch = 1)
+        /// <param name="name">The name of this sound effect.</param>
+        public SFXDefinition(AudioClip clip, float volume = 1, float pitch = 1, string name = null)
         {
             _clips = new AudioClip[] { clip };
             _name = name;
@@ -395,10 +397,10 @@ namespace Cu1uSFX.Internal
         /// Creates a SFXDefinition with the specified clips and data.
         /// </summary>
         /// <param name="clips">The audio clips to pick from when playing this sound effect.</param>
-        /// <param name="name">The name of this sound effect.</param>
         /// <param name="volume">The volume to use for this sound effect.</param>
         /// <param name="pitch">The pitch to use for this sound effect.</param>
-        public SFXDefinition(ICollection<AudioClip> clips, string name = null, float volume = 1, float pitch = 1)
+        /// <param name="name">The name of this sound effect.</param>
+        public SFXDefinition(ICollection<AudioClip> clips, float volume = 1, float pitch = 1, string name = null)
         {
             _clips = clips.ToArray();
             _name = name;
@@ -413,12 +415,12 @@ namespace Cu1uSFX.Internal
         /// Creates a SFXDefinition with the specified clips and randomized data.
         /// </summary>
         /// <param name="clips">The audio clips to pick from when playing this sound effect.</param>
-        /// <param name="name">The name of this sound effect.</param>
         /// <param name="volumeMin">The minimum volume that can be picked for this sound effect.</param>
         /// <param name="volumeMax">The maximum volume that can be picked for this sound effect.</param>
         /// <param name="pitchMin">The minimum pitch that can be picked for this sound effect.</param>
         /// <param name="pitchMax">The maximum pitch that can be picked for this sound effect.</param>
-        public SFXDefinition(ICollection<AudioClip> clips, string name = null, float volumeMin = 1, float volumeMax = 1, float pitchMin = 1, float pitchMax = 1, string category = null)
+        /// <param name="name">The name of this sound effect.</param>
+        public SFXDefinition(ICollection<AudioClip> clips, float volumeMin, float volumeMax, float pitchMin, float pitchMax, string category = null, string name = null)
         {
             _clips = clips.ToArray();
             _name = name;

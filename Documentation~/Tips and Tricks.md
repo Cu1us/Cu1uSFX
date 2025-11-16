@@ -1,9 +1,17 @@
 # Tips & tricks
 
+### Playing AudioClips directly
+As long as your script has `using Cu1uSFX;`, you can play any audio clip directly using Play() - either using audioClip.Play() or SFXPlayer.Play(audioClip). As all other play functions, you can input a specific volume, pitch, position, or a transform to follow in the function, and stop it later using the SFXReference that is returned.
+
+
 ### Sound effects in the Inspector
 The PredefinedSFX struct can be serialized and displayed in the inspector, allowing you to pick a sound effect with a handy dropdown menu, organized by your categories.
 
 You can also serialize the SFXDefinition class to define specific sound effects on your objects in the inspector. These can also be created in code using its constructor, then played like any other sound effect.
+
+
+### Defining sound effects in runtime
+You can create a new SFXDefinition class instance at runtime, then play it freely as if it was any other SFX. Use any of the constructors - for example `new SFXDefinition(clipA, clipB);` or `new SFXDefinition(new AudioClip[] {clipA, clipB}, volume, pitch);`. You can then play it using sfxDefinition.Play(); or SFXPlayer.Play(sfxDefinition);
 
 
 ### Moving the SFX List asset

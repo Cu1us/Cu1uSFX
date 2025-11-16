@@ -75,6 +75,7 @@ namespace Cu1uSFX
         /// <param name="sfx">The SFX to play.</param>
         /// <param name="volume">The volume multiplier to use when playing the sound.</param>
         /// <param name="pitch">The pitch multiplier to use when playing the sound.</param>
+        /// <returns>A handle</returns>
         public static SFXReference Play(this PredefinedSFX sfx, float volume = 1, float pitch = 1)
         {
             return Play(sfx.Definition, volume, pitch);
@@ -109,7 +110,6 @@ namespace Cu1uSFX
         /// <param name="followOffset">The local-space offset from the transform that the AudioSource should follow at.</param>
         /// <param name="volume">The volume multiplier to use when playing the sound.</param>
         /// <param name="pitch">The pitch multiplier to use when playing the sound.</param>
-        /// <returns></returns>
         public static SFXReference Play(this PredefinedSFX sfx, Transform transformToFollow, Vector3 followOffset, float volume = 1, float pitch = 1)
         {
             return Play(sfx.Definition, transformToFollow, followOffset, volume, pitch);
@@ -195,7 +195,6 @@ namespace Cu1uSFX
         /// <param name="followOffset">The local-space offset from the transform that the AudioSource should follow at.</param>
         /// <param name="volume">The volume multiplier to use when playing the sound.</param>
         /// <param name="pitch">The pitch multiplier to use when playing the sound.</param>
-        /// <returns></returns>
         public static SFXReference Play(this SFXDefinition sfx, Transform transformToFollow, Vector3 followOffset, float volume = 1, float pitch = 1)
         {
             if (sfx == null)
@@ -212,6 +211,56 @@ namespace Cu1uSFX
             SFXReference sfxRef = PrepareAudioSource(sfx, volume, pitch);
             sfxRef?.Handler.Play(transformToFollow, followOffset);
             return sfxRef;
+        }
+
+        /// <summary>
+        /// Play this AudioClip globally.
+        /// </summary>
+        /// <param name="clip">The AudioClip to play.</param>
+        /// <param name="volume">The volume multiplier to use when playing the sound.</param>
+        /// <param name="pitch">The pitch multiplier to use when playing the sound.</param>
+        public static SFXReference Play(this AudioClip clip, float volume = 1, float pitch = 1)
+        {
+            SFXDefinition definition = new(clip);
+            return Play(definition, volume, pitch);
+        }
+        /// <summary>
+        /// Play this AudioClip at a specified world position.
+        /// </summary>
+        /// <param name="clip">The AudioClip to play.</param>
+        /// <param name="worldPosition">The world space position to play the sound at.</param>
+        /// <param name="volume">The volume multiplier to use when playing the sound.</param>
+        /// <param name="pitch">The pitch multiplier to use when playing the sound.</param>
+        public static SFXReference Play(this AudioClip clip, Vector3 worldPosition, float volume = 1, float pitch = 1)
+        {
+            SFXDefinition definition = new(clip);
+            return Play(definition, worldPosition, volume, pitch);
+        }
+        /// <summary>
+        /// Play this AudioClip, making the audio source follow the specified transform.
+        /// </summary>
+        /// <param name="clip">The AudioClip to play.</param>
+        /// <param name="transformToFollow">The transform to follow. (The AudioSource will not be childed to this transform)</param>
+        /// <param name="volume">The volume multiplier to use when playing the sound.</param>
+        /// <param name="pitch">The pitch multiplier to use when playing the sound.</param>
+        public static SFXReference Play(this AudioClip clip, Transform transformToFollow, float volume = 1, float pitch = 1)
+        {
+            SFXDefinition definition = new(clip);
+            return Play(definition, transformToFollow, volume, pitch);
+        }
+        /// <summary>
+        /// Play this AudioClip, making the audio source follow the specified transform at a specified offset.
+        /// </summary>
+        /// <param name="clip">The AudioClip to play.</param>
+        /// <param name="transformToFollow">The transform to follow. (The AudioSource will not be childed to this transform)</param>
+        /// <param name="followOffset">The local-space offset from the transform that the AudioSource should follow at.</param>
+        /// <param name="volume">The volume multiplier to use when playing the sound.</param>
+        /// <param name="pitch">The pitch multiplier to use when playing the sound.</param>
+        /// <returns></returns>
+        public static SFXReference Play(this AudioClip clip, Transform transformToFollow, Vector3 followOffset, float volume = 1, float pitch = 1)
+        {
+            SFXDefinition definition = new(clip);
+            return Play(definition, transformToFollow, followOffset, volume, pitch);
         }
 
         #endregion
@@ -235,10 +284,10 @@ namespace Cu1uSFX
         /// </summary>
         /// <param name="sfxReference">The reference to the sound effect to stop.</param>
         /// <param name="runFinishedCallback"></param>
-        public static void Stop(this SFXReference sfxReference, bool runFinishedCallback = true)
-        {
-            sfxReference.Stop();
-        }
+        // public static void Stop(this SFXReference sfxReference, bool runFinishedCallback = true)
+        // {
+        //     sfxReference.Stop(runFinishedCallback); // Circular method call - prioritizes this extension above the Stop() defined in SFXReference
+        // }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void InitializePool()
@@ -260,6 +309,7 @@ namespace Cu1uSFX
             };
             Object.DontDestroyOnLoad(go);
             AudioSource source = go.GetComponent<AudioSource>();
+            source.playOnAwake = false;
             SFXList.LogIfFlag(SFXLogFlags.NOTIF_VERBOSE, "[Cu1uSFX] Instantiated new AudioSource", go);
             return source;
         }
