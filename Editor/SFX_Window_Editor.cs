@@ -267,6 +267,8 @@ namespace Cu1uSFX.Internal
         SerializedProperty SfxProperty;
         public string SoundName;
         public Action OnObjectUpdated;
+        public bool EditingFromInspector = false;
+        public string InspectorObjectName;
 
         Button PreviewButton;
         Label PreviewButtonErrorLabel;
@@ -275,18 +277,24 @@ namespace Cu1uSFX.Internal
 
         const float STOPPABLE_PREVIEW_MIN_LENGTH = 1f;
 
-        public static SFX_EditSFXWindow_Editor Spawn(SerializedProperty sfxProp, string name)
+        public static SFX_EditSFXWindow_Editor Spawn(SerializedProperty sfxProp, string name, bool editingFromInspector = false, string inspectorObjectName = null)
         {
             SFX_EditSFXWindow_Editor window = GetWindow<SFX_EditSFXWindow_Editor>(true, $"Edit SFX", true);
             window.ShowUtility();
-            window.Initialize(sfxProp, name);
+            window.Initialize(sfxProp, name, editingFromInspector, inspectorObjectName);
             return window;
         }
-        public void Initialize(SerializedProperty sfxProp, string name)
+        public void Initialize(SerializedProperty sfxProp, string name, bool editingFromInspector = false, string inspectorObjectName = null)
         {
+            EditingFromInspector = editingFromInspector;
+            InspectorObjectName = inspectorObjectName;
             titleContent.text = $"Editing {name}";
             titleContent.tooltip = "SFX Editor";
             minSize = new(300, 300);
+            if (PreviewSoundSource != null && PreviewSoundSource.isPlaying)
+            {
+                PreviewSoundSource.Stop();
+            }
             rootVisualElement.Clear();
             SfxProperty = sfxProp;
             SoundName = name;
@@ -318,13 +326,30 @@ namespace Cu1uSFX.Internal
         {
             ScrollView content = new(ScrollViewMode.Vertical);
 
-            string sfxName = SfxProperty.FindPropertyRelative("_name").stringValue;
+            string sfxName;
+            if (EditingFromInspector)
+            {
+                sfxName = SoundName;
+            }
+            else
+            {
+                sfxName = SfxProperty.FindPropertyRelative("_name").stringValue;
+            }
             string categoryName = SfxProperty.FindPropertyRelative("_category").stringValue;
             Label editingLabel = new($"{sfxName}")
             {
                 style = { alignSelf = Align.Center, unityFontStyleAndWeight = FontStyle.Bold, marginTop = 8, marginBottom = 4, fontSize = 18 }
             };
             content.Add(editingLabel);
+
+            if (EditingFromInspector && !string.IsNullOrWhiteSpace(InspectorObjectName))
+            {
+                Label inspectorObjectLabel = new($"of {InspectorObjectName}")
+                {
+                    style = { alignSelf = Align.Center, unityFontStyleAndWeight = FontStyle.Bold, marginTop = 0, marginBottom = 4, fontSize = 10 }
+                };
+                content.Add(inspectorObjectLabel);
+            }
 
             //
             // Audio clips settings
@@ -500,11 +525,19 @@ namespace Cu1uSFX.Internal
             // Category field
             //
 
-            PropertyField categoryField = new(SfxProperty.FindPropertyRelative("_category"), "Category")
+            PropertyField categoryField;
+            if (EditingFromInspector)
             {
-                tooltip = "Sound effects with the same category will be grouped together for easy organizing.",
-                style = { marginLeft = Length.Percent(15), marginRight = Length.Percent(15), marginTop = 20 }
-            };
+                categoryField = null;
+            }
+            else
+            {
+                categoryField = new(SfxProperty.FindPropertyRelative("_category"), "Category")
+                {
+                    tooltip = "Sound effects with the same category will be grouped together for easy organizing.",
+                    style = { marginLeft = Length.Percent(15), marginRight = Length.Percent(15), marginTop = 20 }
+                };
+            }
 
             //
             // Preview button
@@ -525,19 +558,19 @@ namespace Cu1uSFX.Internal
             // Bind fields
             //
 
-            categoryField.Bind(SfxProperty.serializedObject);
+            categoryField?.Bind(SfxProperty.serializedObject);
             minPitchField.Bind(SfxProperty.serializedObject);
             maxPitchField.Bind(SfxProperty.serializedObject);
             minVolumeField.Bind(SfxProperty.serializedObject);
             maxVolumeField.Bind(SfxProperty.serializedObject);
             clipsField.Bind(SfxProperty.serializedObject);
 
-            categoryField.RegisterValueChangeCallback(OnCategoryChanged);
+            categoryField?.RegisterValueChangeCallback(OnCategoryChanged);
 
             content.Add(clipsSettings);
             content.Add(pitchSettings);
             content.Add(volumeSettings);
-            content.Add(categoryField);
+            if (categoryField != null) content.Add(categoryField);
             content.Add(PreviewButton);
             content.Add(PreviewButtonErrorLabel);
 
