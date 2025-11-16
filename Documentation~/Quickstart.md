@@ -12,7 +12,6 @@
 
 5. Specify the Audio Clip(s) to play
   - If you want to play a random clip, or randomize volume/pitch, click the *Randomize?* toggle!
-  - Note that this plugin is not intended for music or looping sound effects!
 
 6. Click **Save** in the Sound Effects window when you're done.
   - You only need to click Save if you've added or removed a sound effect to the list. Edits to individual sound effects will be saved automatically.
@@ -25,10 +24,12 @@ Now, to play it:
 
 8. Go to any script in your game
 
-9. To play your new sound effect, simply call ``SFXPlayer.Play(SFX.YourSFXName);``
-  - You can also use ``SFX.YourSFXName.Play()`` to do the same thing.
+9. To play your new sound effect, simply call `SFXPlayer.Play(SFX.YourSFXName);`
+  - You can also use `SFX.YourSFXName.Play()` to do the same thing.
 
 10. Done! Your sound effect should now play ingame when the code is run.
+
+BONUS: You can also play AudioClips directly from any script using `audioClip.Play();` or `SFXPlayer.Play(audioClip);`, if your script contains `using Cu1uSFX;`
 
 Check out *Tips and Tricks.md* for more advanced use cases!
 
