@@ -55,6 +55,14 @@ namespace Cu1uSFX.Internal
         /// The array of defined sound effects, containing the definitions as seen in the Sound Effects window.
         /// </summary>
         public SFXDefinition[] Definitions;
+        /// <summary>
+        /// Determines if the SFX enum code should be generated at all.
+        /// </summary>
+        public bool EnableCodeGeneration = true;
+        /// <summary>
+        /// Determines if the generated SFX enums should be sorted by category.
+        /// </summary>
+        public bool CategorizeSFXEnum;
 #if UNITY_EDITOR
         /// <summary>
         /// The path of the script to fill when generating the SFX enum names. Note that changing this to another script or file will permanently overwrite its contents!
@@ -113,10 +121,11 @@ namespace Cu1uSFX.Internal
                 }
 
                 using System.IO.StreamWriter writer = new(path);
-                writer.WriteLine("using UnityEngine;");
-                writer.WriteLine("");
-                writer.WriteLine("// DO NOT EDIT - This script will be automatically filled with enums that represent sound effecs that you create! Add sound effects in Window/SFX Editor");
-                writer.WriteLine("// DO NOT MOVE THIS SCRIPT - Assign a new script to fill with enums instead in the 'Advanced' tab in the SFX List at /Assets/Resources/SFX List");
+                writer.WriteLine("namespace Cu1uSFX");
+                writer.WriteLine("{");
+                writer.WriteLine("    // DO NOT EDIT - This script will be automatically filled with enums that represent sound effecs that you create! Add sound effects in Window/SFX Editor");
+                writer.WriteLine("    // DO NOT MOVE THIS SCRIPT - Assign a new script to fill with enums instead in the 'Advanced' tab in the SFX List at /Assets/Resources/SFX List");
+                writer.WriteLine("}");
                 writer.Close();
                 UnityEditor.AssetDatabase.ImportAsset(path);
 
@@ -251,7 +260,7 @@ namespace Cu1uSFX.Internal
     /// Enum for determining the types of logs that the Cu1uSFX plugin should send.
     /// </summary>
     [Flags]
-    public enum SFXLogFlags : byte
+    public enum SFXLogFlags
     {
         [InspectorName("No logs")] NONE = 0,
         [InspectorName("Errors/Critical")] INTERNAL_ERROR_CRITICAL = 1,

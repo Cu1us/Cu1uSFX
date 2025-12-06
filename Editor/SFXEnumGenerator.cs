@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using UnityEditor;
+using System;
 
 // Cu1uSFX Sound Effect Plugin
 // Copyright (C) 2025  Måns Fritiofsson
@@ -28,17 +30,55 @@ namespace Cu1uSFX.Internal
         /// <summary>
         /// Regenerates the enum script. If you run this manually, make sure to tell Unity to recompile script changes afterwards.
         /// </summary>
-        public static void GenerateEnumScript()
+        public static void GenerateEnumScript(bool generateCategoryClasses)
         {
-            ref SFXDefinition[] definitions = ref SFXList.Instance.Definitions;
-            string[] names = new string[definitions.Length];
-            for (int i = 0; i < definitions.Length; i++)
-            {
-                names[i] = definitions[i].Name;
-            }
-            GenerateEnumScriptFromNames(names, GetEnumScriptPath());
-            SFXList.Instance.EnumNames = new List<string>(names);
+            // ref SFXDefinition[] definitions = ref SFXList.Instance.Definitions;
+            // string[] names = new string[definitions.Length];
+            // for (int i = 0; i < definitions.Length; i++)
+            // {
+            //     names[i] = definitions[i].Name;
+            // }
+            GenerateEnumScriptFromDefs(SFXList.Instance.Definitions, GetEnumScriptPath(), generateCategoryClasses);
             //DefineManager.AddCompileDefine(SFX_GENERATED_DIRECTIVE);
+        }
+        /// <summary>
+        /// Deletes the enum generation target script. Does nothing if the target script doesn't contain "namespace Cu1uSFX" in the first row of the file.
+        /// </summary>
+        public static bool DeleteEnumScript()
+        {
+            string path = SFXList.Instance.SFXEnumScriptPath;
+            if (string.IsNullOrWhiteSpace(path)) return false;
+            bool doDelete = false;
+            try
+            {
+                using StreamReader reader = new(path);
+                doDelete = reader.ReadLine() == "namespace Cu1uSFX";
+            }
+            catch (Exception)
+            {
+                SFXList.LogWarningIfFlag(SFXLogFlags.INTERNAL_ERROR_NONCRITICAL, "[Cu1uSFX] Could not read from the SFX enum generation target script to"
+                + "verify that it was safe to delete. Skipping delete.");
+                return false;
+            }
+            if (doDelete)
+            {
+                if (AssetDatabase.DeleteAsset(path)) // Delete script
+                {
+                    SFXList.LogIfFlag(SFXLogFlags.NOTIF_INFO, "[Cu1uSFX] SFX enum generation target script has been deleted successfully.");
+                    RecompileScripts();
+                    return true;
+                }
+                else
+                {
+                    SFXList.LogIfFlag(SFXLogFlags.NOTIF_VERBOSE, "[Cu1uSFX] SFX enum generation target script could not be deleted. It might not exist?");
+                }
+            }
+            else
+            {
+                SFXList.LogWarningIfFlag(SFXLogFlags.INTERNAL_ERROR_CRITICAL, "[Cu1uSFX] Attempted to delete the SFX enum generation target, but it does not"
+                + "look like expected. Does it point to an invalid script, or a user script? If necessary, change the target in the SFX List asset's Code Generation/Advanced tab.");
+            }
+            return false;
         }
         public static string GetEnumScriptPath()
         {
@@ -51,9 +91,10 @@ namespace Cu1uSFX.Internal
         /// </summary>
         /// <param name="enumNames">The names to use for the enums.</param>
         /// <param name="scriptPath">Path to the script to be overwritten.</param>
-        static void GenerateEnumScriptFromNames(string[] enumNames, string scriptPath)
+        static void GenerateEnumScriptFromDefs(SFXDefinition[] enumNames, string scriptPath, bool generateCategoryClasses)
         {
             List<string> addedNames = new();
+            Dictionary<string, List<(SFXDefinition, int i)>> categories = new();
 
             using StreamWriter writer = new(scriptPath);
 
@@ -66,7 +107,7 @@ namespace Cu1uSFX.Internal
             writer.WriteLine("    {");
             for (int i = 0; i < enumNames.Length; i++)
             {
-                string line = FormatEnumName(enumNames[i]);
+                string line = FormatEnumName(enumNames[i].Name);
 
                 if (string.IsNullOrEmpty(line))
                     continue;
@@ -75,12 +116,42 @@ namespace Cu1uSFX.Internal
 
                 addedNames.Add(line);
 
-                line = $"        public readonly static {nameof(PredefinedSFX)} {line} = new({i});";
-
-                writer.WriteLine(line);
+                if (generateCategoryClasses && !string.IsNullOrWhiteSpace(enumNames[i].Category))
+                {
+                    string categoryName = FormatEnumName(enumNames[i].Category);
+                    if (!string.IsNullOrWhiteSpace(categoryName))
+                    {
+                        if (!categories.ContainsKey(categoryName))
+                        {
+                            categories.Add(categoryName, new());
+                        }
+                        categories[categoryName].Add((enumNames[i], i));
+                    }
+                }
+                else
+                {
+                    line = $"        public readonly static {nameof(PredefinedSFX)} {line} = new({i});";
+                    writer.WriteLine(line);
+                }
             }
+            if (generateCategoryClasses)
+            {
+                foreach (KeyValuePair<string, List<(SFXDefinition, int)>> category in categories)
+                {
+                    writer.WriteLine($"        public static class {category.Key}");
+                    writer.WriteLine("        {");
+                    foreach ((SFXDefinition def, int i) in category.Value)
+                    {
+                        writer.WriteLine($"            public readonly static {nameof(PredefinedSFX)} {FormatEnumName(def.Name)} = new({i});");
+                    }
+                    writer.WriteLine("        }");
+                }
+            }
+
             writer.WriteLine("    }");
             writer.WriteLine("}");
+
+            SFXList.Instance.EnumNames = addedNames;
         }
 
         /// <summary>

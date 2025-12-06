@@ -236,7 +236,7 @@ namespace Cu1uSFX.Internal
         public override void SaveChanges() // This is the piece of code that regenerates the enum when changes are saved
         {
             SaveChangesButton.enabledSelf = false;
-            SFXEnumGenerator.GenerateEnumScript();
+            SFXEnumGenerator.GenerateEnumScript(SFXList.Instance.CategorizeSFXEnum);
             base.SaveChanges();
             SFXEnumGenerator.RecompileScripts();
         }
