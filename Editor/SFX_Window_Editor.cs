@@ -31,6 +31,7 @@ namespace Cu1uSFX.Internal
         TabView CategoryTabView;
         Button SaveChangesButton;
         int SelectedTabIndex = 0;
+        bool unsavedCategoryChanges = false;
         readonly Dictionary<string, ScrollView> CategoryTabMap = new();
 
         VisualElement GenerateRootContent()
@@ -130,6 +131,12 @@ namespace Cu1uSFX.Internal
             window.OnObjectUpdated += MarkUnsavedChangesAndRegenerate;
         }
 
+        void OnCategoryOfSFXChanged()
+        {
+            unsavedCategoryChanges = true;
+            MarkUnsavedChangesAndRegenerate();
+        }
+
         VisualElement DisplaySFX(SerializedProperty sfxProp, int boxIndex)
         {
             VisualElement box = new Box()
@@ -146,8 +153,16 @@ namespace Cu1uSFX.Internal
             Button editButton = new(() =>
             {
                 SFX_EditSFXWindow_Editor window = SFX_EditSFXWindow_Editor.Spawn(sfxProp, soundName);
-                window.OnObjectUpdated -= Regenerate;
-                window.OnObjectUpdated += Regenerate;
+                if (SFXList.Instance.CategorizeSFXEnum)
+                {
+                    window.OnCategoryUpdated -= OnCategoryOfSFXChanged;
+                    window.OnCategoryUpdated += OnCategoryOfSFXChanged;
+                }
+                else
+                {
+                    window.OnObjectUpdated -= Regenerate;
+                    window.OnObjectUpdated += Regenerate;
+                }
             })
             {
                 text = "Edit",
@@ -233,7 +248,7 @@ namespace Cu1uSFX.Internal
                 if (desiredEnumNames[i] != SFXList.Instance.EnumNames[i])
                     return true;
             }
-            return false;
+            return unsavedCategoryChanges && SFXList.Instance.CategorizeSFXEnum;
         }
 
         public override void SaveChanges() // This is the piece of code that regenerates the enum when changes are saved
@@ -275,7 +290,8 @@ namespace Cu1uSFX.Internal
     {
         SerializedProperty SfxProperty;
         public string SoundName;
-        public Action OnObjectUpdated;
+        public event Action OnObjectUpdated;
+        public event Action OnCategoryUpdated;
         public bool EditingFromInspector = false;
         public string InspectorObjectName;
 
@@ -587,6 +603,7 @@ namespace Cu1uSFX.Internal
         }
         void OnCategoryChanged(SerializedPropertyChangeEvent changeEvent)
         {
+            OnCategoryUpdated?.Invoke();
             OnObjectUpdated?.Invoke();
         }
 
