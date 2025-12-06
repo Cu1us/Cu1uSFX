@@ -152,16 +152,18 @@ namespace Cu1uSFX.Internal
 
             Button editButton = new(() =>
             {
-                SFX_EditSFXWindow_Editor window = SFX_EditSFXWindow_Editor.Spawn(sfxProp, soundName);
-                if (SFXList.Instance.CategorizeSFXEnum)
+                if (SFX_EditSFXWindow_Editor.SpawnOrToggle(out SFX_EditSFXWindow_Editor window, sfxProp, soundName))
                 {
-                    window.OnCategoryUpdated -= OnCategoryOfSFXChanged;
-                    window.OnCategoryUpdated += OnCategoryOfSFXChanged;
-                }
-                else
-                {
-                    window.OnObjectUpdated -= Regenerate;
-                    window.OnObjectUpdated += Regenerate;
+                    if (SFXList.Instance.CategorizeSFXEnum)
+                    {
+                        window.OnCategoryUpdated -= OnCategoryOfSFXChanged;
+                        window.OnCategoryUpdated += OnCategoryOfSFXChanged;
+                    }
+                    else
+                    {
+                        window.OnObjectUpdated -= Regenerate;
+                        window.OnObjectUpdated += Regenerate;
+                    }
                 }
             })
             {
@@ -259,10 +261,10 @@ namespace Cu1uSFX.Internal
                 SFXEnumGenerator.GenerateEnumScript(SFXList.Instance.CategorizeSFXEnum);
             }
             base.SaveChanges();
-            if (SFXList.Instance.EnableCodeGeneration)
-            {
-                SFXEnumGenerator.RecompileScripts();
-            }
+            // if (SFXList.Instance.EnableCodeGeneration)
+            // {
+            //     SFXEnumGenerator.RecompileScripts();
+            // }
         }
         public override void DiscardChanges()
         {
@@ -308,6 +310,24 @@ namespace Cu1uSFX.Internal
             window.ShowUtility();
             window.Initialize(sfxProp, name, editingFromInspector, inspectorObjectName);
             return window;
+        }
+        /// <summary>
+        /// Spawns a window and returns it, or if one is already open with the same target property, closes it.
+        /// </summary>
+        /// <returns>True if a new window was spawned, false if a window already existed and was closed.</returns>
+        public static bool SpawnOrToggle(out SFX_EditSFXWindow_Editor window, SerializedProperty sfxProp, string name, bool editingFromInspector = false, string inspectorObjectName = null)
+        {
+            if (HasOpenInstances<SFX_EditSFXWindow_Editor>())
+            {
+                window = GetWindow<SFX_EditSFXWindow_Editor>();
+                if (window.SoundName == name && window.InspectorObjectName == inspectorObjectName && window.EditingFromInspector == editingFromInspector)
+                {
+                    window.Close();
+                    return false;
+                }
+            }
+            window = Spawn(sfxProp, name, editingFromInspector, inspectorObjectName);
+            return true;
         }
         public void Initialize(SerializedProperty sfxProp, string name, bool editingFromInspector = false, string inspectorObjectName = null)
         {
@@ -557,11 +577,13 @@ namespace Cu1uSFX.Internal
             }
             else
             {
-                categoryField = new(SfxProperty.FindPropertyRelative("_category"), "Category")
+                SerializedProperty categoryProp = SfxProperty.FindPropertyRelative("_category");
+                categoryField = new(categoryProp, "Category")
                 {
                     tooltip = "Sound effects with the same category will be grouped together for easy organizing.",
                     style = { marginLeft = Length.Percent(15), marginRight = Length.Percent(15), marginTop = 20 }
                 };
+                categoryField.TrackPropertyValue(categoryProp, OnCategoryChanged);
             }
 
             //
@@ -590,7 +612,7 @@ namespace Cu1uSFX.Internal
             maxVolumeField.Bind(SfxProperty.serializedObject);
             clipsField.Bind(SfxProperty.serializedObject);
 
-            categoryField?.RegisterValueChangeCallback(OnCategoryChanged);
+            // categoryField?.RegisterValueChangeCallback(OnCategoryChanged);
 
             content.Add(clipsSettings);
             content.Add(pitchSettings);
@@ -601,8 +623,9 @@ namespace Cu1uSFX.Internal
 
             return content;
         }
-        void OnCategoryChanged(SerializedPropertyChangeEvent changeEvent)
+        void OnCategoryChanged(SerializedProperty property)
         {
+            Debug.Log($"Category changed to '{property.boxedValue}'");
             OnCategoryUpdated?.Invoke();
             OnObjectUpdated?.Invoke();
         }

@@ -141,7 +141,7 @@ namespace Cu1uSFX.Internal
                     {
                         EditorGUI.indentLevel++;
                         EditorGUILayout.Space(10);
-                        if (GUILayout.Button("Regenerate SFX enum without recompiling"))
+                        if (GUILayout.Button("Regenerate SFX enum script immediately"))
                         {
                             SFXList.LogIfFlag(SFXLogFlags.NOTIF_INFO, "[Cu1uSFX] Regenerating SFX enum without recompiling...");
                             SFXEnumGenerator.GenerateEnumScript(enableCategoryCodeGen);
@@ -152,13 +152,13 @@ namespace Cu1uSFX.Internal
                             SFXList.LogIfFlag(SFXLogFlags.NOTIF_INFO, "[Cu1uSFX] Deleting SFX enum script...");
                             SFXEnumGenerator.DeleteEnumScript();
                         }
-                        EditorGUILayout.Space(10);
-                        if (GUILayout.Button("Recompile scripts"))
-                        {
-                            SFXList.LogIfFlag(SFXLogFlags.NOTIF_INFO, "[Cu1uSFX] Triggering script recompilation...");
-                            showDebug = false;
-                            SFXEnumGenerator.RecompileScripts();
-                        }
+                        // EditorGUILayout.Space(10);
+                        // if (GUILayout.Button("Recompile scripts"))
+                        // {
+                        //     SFXList.LogIfFlag(SFXLogFlags.NOTIF_INFO, "[Cu1uSFX] Triggering script recompilation...");
+                        //     showDebug = false;
+                        //     SFXEnumGenerator.RecompileScripts();
+                        // }
                         EditorGUILayout.Space(5);
                         EditorGUI.indentLevel--;
                     }
@@ -191,7 +191,7 @@ namespace Cu1uSFX.Internal
                             }
                         }
                         SFXEnumGenerator.GenerateEnumScript(enableCategoryCodeGen);
-                        SFXEnumGenerator.RecompileScripts();
+                        // SFXEnumGenerator.RecompileScripts();
                     }
                     else if (sfxList.EnableCodeGeneration) // Code generation was set from true to false
                     {
