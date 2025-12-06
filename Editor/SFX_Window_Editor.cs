@@ -110,7 +110,7 @@ namespace Cu1uSFX.Internal
                 enabledSelf = hasUnsavedChanges
             };
             content.Add(addNewSFXButton);
-            content.Add(SaveChangesButton);
+            if (SFXList.Instance.EnableCodeGeneration) content.Add(SaveChangesButton);
 
             return content;
         }
@@ -208,8 +208,11 @@ namespace Cu1uSFX.Internal
         }
         void MarkUnsavedChangesAndRegenerate()
         {
-            hasUnsavedChanges = HasUnsavedChanges();
-            SaveChangesButton.enabledSelf = hasUnsavedChanges;
+            if (SFXList.Instance.EnableCodeGeneration)
+            {
+                hasUnsavedChanges = HasUnsavedChanges();
+                SaveChangesButton.enabledSelf = hasUnsavedChanges;
+            }
             Regenerate();
         }
         bool HasUnsavedChanges()
@@ -235,10 +238,16 @@ namespace Cu1uSFX.Internal
 
         public override void SaveChanges() // This is the piece of code that regenerates the enum when changes are saved
         {
-            SaveChangesButton.enabledSelf = false;
-            SFXEnumGenerator.GenerateEnumScript(SFXList.Instance.CategorizeSFXEnum);
+            if (SFXList.Instance.EnableCodeGeneration)
+            {
+                SaveChangesButton.enabledSelf = false;
+                SFXEnumGenerator.GenerateEnumScript(SFXList.Instance.CategorizeSFXEnum);
+            }
             base.SaveChanges();
-            SFXEnumGenerator.RecompileScripts();
+            if (SFXList.Instance.EnableCodeGeneration)
+            {
+                SFXEnumGenerator.RecompileScripts();
+            }
         }
         public override void DiscardChanges()
         {
