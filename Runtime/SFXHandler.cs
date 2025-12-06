@@ -117,12 +117,23 @@ namespace Cu1uSFX.Internal
             playingTime = 0;
             AudioSourceComponent.Stop();
             AudioSourceComponent.clip = null;
+            if (AudioSourceComponent.mute) AudioSourceComponent.mute = false;
             AudioSourceComponent.pitch = 1;
             AudioSourceComponent.volume = 1;
             AudioSourceComponent.spatialize = false;
+            AudioSourceComponent.panStereo = 0;
+            AudioSourceComponent.spatialBlend = 1;
+            AudioSourceComponent.rolloffMode = default;
+            AudioSourceComponent.minDistance = 1;
+            AudioSourceComponent.maxDistance = 500;
             FollowTransform = null;
             FollowTransformLocalOffset = Vector3.zero;
             OnComplete = null;
+        }
+
+        internal void ResetFailsafeExpiryTimer()
+        {
+            playingTime = 0;
         }
     }
 }

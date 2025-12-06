@@ -394,6 +394,126 @@ namespace Cu1uSFX
             }
         }
         /// <summary>
+        /// The panning for this sound effect (left or right).
+        /// </summary>
+        /// <remarks>
+        /// -1.0 = Full Left; 0.0 = Center; 1.0 = Full Right.
+        /// </remarks>
+        public float StereoPanning
+        {
+            get => IsValid ? AudioSource.panStereo : float.NaN;
+            set
+            {
+                if (IsValid) AudioSource.panStereo = value;
+                else
+                {
+                    SFXList.LogWarningIfFlag(SFXLogFlags.SFXREF_EXPIRED, $"[Cu1uSFX] Script attempted to set {nameof(StereoPanning)} on an expired SFXReference.");
+                }
+            }
+        }
+        /// <summary>
+        /// The sound effect playback position in seconds.
+        /// </summary>
+        public float Time
+        {
+            get => IsValid ? AudioSource.time : float.NaN;
+            set
+            {
+                if (IsValid) { AudioSource.time = value; Handler.ResetFailsafeExpiryTimer(); }
+                else
+                {
+                    SFXList.LogWarningIfFlag(SFXLogFlags.SFXREF_EXPIRED, $"[Cu1uSFX] Script attempted to set {nameof(Time)} on an expired SFXReference.");
+                }
+            }
+        }
+        /// <summary>
+        /// The amount of spatial blending for the sound effect. 0.0 makes the sound full 2D, 1.0 makes it full 3D.
+        /// </summary>
+        /// <remarks>
+        /// Only has an effect if the sound is spatialized; this is the case when WorldPosition or FollowTransform is set.
+        /// </remarks>
+        public float SpatialBlend
+        {
+            get => IsValid ? AudioSource.spatialBlend : float.NaN;
+            set
+            {
+                if (IsValid) AudioSource.spatialBlend = value;
+                else
+                {
+                    SFXList.LogWarningIfFlag(SFXLogFlags.SFXREF_EXPIRED, $"[Cu1uSFX] Script attempted to set {nameof(SpatialBlend)} on an expired SFXReference.");
+                }
+            }
+        }
+        /// <summary>
+        /// The distance where sound either becomes inaudible or stops attenuation, depending on the rolloff mode.
+        /// </summary>
+        /// <remarks>
+        /// Only has an effect if the sound is spatialized; this is the case when WorldPosition or FollowTransform is set.
+        /// </remarks>
+        public float MaxDistance
+        {
+            get => IsValid ? AudioSource.maxDistance : float.NaN;
+            set
+            {
+                if (IsValid) AudioSource.maxDistance = value;
+                else
+                {
+                    SFXList.LogWarningIfFlag(SFXLogFlags.SFXREF_EXPIRED, $"[Cu1uSFX] Script attempted to set {nameof(MaxDistance)} on an expired SFXReference.");
+                }
+            }
+        }
+        /// <summary>
+        /// If true, the volume is set to 0 and the sound cannot be heard.
+        /// </summary>
+        public bool Muted
+        {
+            get => IsValid && AudioSource.mute;
+            set
+            {
+                if (IsValid) AudioSource.mute = value;
+                else
+                {
+                    SFXList.LogWarningIfFlag(SFXLogFlags.SFXREF_EXPIRED, $"[Cu1uSFX] Script attempted to set {nameof(Muted)} on an expired SFXReference.");
+                }
+            }
+        }
+        /// <summary>
+        /// Within the Min distance the sound will cease to grow louder in volume.
+        /// </summary>
+        /// <remarks>
+        /// Only has an effect if the sound is spatialized; this is the case when WorldPosition or FollowTransform is set.
+        /// </remarks>
+        public float MinDistance
+        {
+            get => IsValid ? AudioSource.minDistance : float.NaN;
+            set
+            {
+                if (IsValid) AudioSource.minDistance = value;
+                else
+                {
+                    SFXList.LogWarningIfFlag(SFXLogFlags.SFXREF_EXPIRED, $"[Cu1uSFX] Script attempted to set {nameof(MaxDistance)} on an expired SFXReference.");
+                }
+            }
+        }
+        /// <summary>
+        /// Sets/gets how the AudioSource attenuates over distance.
+        /// </summary>
+        /// <remarks>
+        /// Only has an effect if the sound is spatialized; this is the case when WorldPosition or FollowTransform is set.
+        /// </remarks>
+        public AudioRolloffMode RolloffMode
+        {
+            get => IsValid ? AudioSource.rolloffMode : default;
+            set
+            {
+                if (IsValid) AudioSource.rolloffMode = value;
+                else
+                {
+                    SFXList.LogWarningIfFlag(SFXLogFlags.SFXREF_EXPIRED, $"[Cu1uSFX] Script attempted to set {nameof(RolloffMode)} on an expired SFXReference.");
+                }
+            }
+        }
+        /// <summary>
         /// The world-space position that this sound is being played at.
         /// </summary>
         /// <remarks>
