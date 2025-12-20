@@ -127,8 +127,8 @@ namespace Cu1uSFX.Internal
             SerializedProperty definitionsProp = sfxList.FindProperty(nameof(SFXList.Definitions));
             string category = CategoryTabView.activeTab.label == "All" ? "" : CategoryTabView.activeTab.label;
             SFX_NewSFXWindow_Editor window = SFX_NewSFXWindow_Editor.Spawn(definitionsProp, category);
-            window.OnObjectUpdated -= MarkUnsavedChangesAndRegenerate;
-            window.OnObjectUpdated += MarkUnsavedChangesAndRegenerate;
+            window.OnSFXAdded -= MarkUnsavedChangesAndRegenerate;
+            window.OnSFXAdded += MarkUnsavedChangesAndRegenerate;
         }
 
         void OnCategoryOfSFXChanged()
@@ -145,7 +145,16 @@ namespace Cu1uSFX.Internal
             };
 
             string soundName = sfxProp.FindPropertyRelative("_name").stringValue;
-            Label label = new(soundName)
+            string soundDisplayName;
+            if (SFXList.Instance.HighlightUnsavedSFXsInList && SFXList.Instance.EnableCodeGeneration && !SFXList.Instance.EnumNames.Contains(soundName))
+            {
+                soundDisplayName = soundName + '*';
+            }
+            else
+            {
+                soundDisplayName = soundName;
+            }
+            Label label = new(soundDisplayName)
             {
                 style = { unityFontStyleAndWeight = FontStyle.Bold, marginLeft = 10, marginRight = 10, marginTop = 3, alignSelf = Align.FlexStart }
             };

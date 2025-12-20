@@ -85,6 +85,15 @@ namespace Cu1uSFX.Internal
                     serializedObject.FindProperty(nameof(SFXList.AudioSourcePoolMax)),
                     new GUIContent("Max", "Maximum size of the pool.\n\nIf the pool is full, sources above the max count will be destroyed instead of put back in the pool.\n\n[Default = 10]")
                 );
+
+                EditorGUILayout.Space(10);
+
+                EditorGUILayout.PropertyField(
+                    serializedObject.FindProperty(nameof(SFXList.HighlightUnsavedSFXsInList)),
+                    new GUIContent("Highlight unsaved SFX", "Should unsaved sound effects in the SFX list be marked with a '*'?\n\n" +
+                    "Disabling this saves performance if there's a large numbers of sound effects." + 
+                    "\n\n(This setting has no effect if code generation is disabled)\n\n[Default: enabled]")
+                );
             }
             if (EditorGUI.EndChangeCheck())
             {

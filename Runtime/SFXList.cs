@@ -62,7 +62,12 @@ namespace Cu1uSFX.Internal
         /// <summary>
         /// Determines if the generated SFX enums should be sorted by category.
         /// </summary>
-        public bool CategorizeSFXEnum;
+        public bool CategorizeSFXEnum = false;
+        /// <summary>
+        /// Should unsaved sound effects in the SFX list be marked with a '*'?
+        /// Disabling this saves performance if there's a large numbers of sound effects.
+        /// </summary>
+        public bool HighlightUnsavedSFXsInList = true;
 #if UNITY_EDITOR
         /// <summary>
         /// The path of the script to fill when generating the SFX enum names. Note that changing this to another script or file will permanently overwrite its contents!
