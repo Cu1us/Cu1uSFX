@@ -109,7 +109,7 @@ namespace Cu1uSFX.Internal
                     new GUIContent(
                         "Enable code generation",
                         "If enabled, the plugin will generate a script containing a static SFX enum class, that lets you access your project-wide sound effects"
-                        + " directly using 'SFX.YourSound' anywhere in the code. Disabling this will delete that script, if it exists."),
+                        + " directly using 'SFX.YourSound' anywhere in the code. Disabling this will delete that script, if it exists.\n\n[Default: enabled]"),
                     enableCodeGen
                 );
                 EditorGUI.BeginDisabledGroup(!enableCodeGen);
@@ -117,7 +117,7 @@ namespace Cu1uSFX.Internal
                     new GUIContent(
                         "Categorize SFX enum",
                         "If enabled, the static SFX enum will sort sound effects by their category, meaning you must access sound effects that have a defined "
-                        + "category using 'SFX.YourCategory.YourSound' instead of just 'SFX.YourSound'."
+                        + "category using 'SFX.YourCategory.YourSound' instead of just 'SFX.YourSound'.\n\n[Default: disabled]"
                 ),
                 enableCategoryCodeGen
                 );
