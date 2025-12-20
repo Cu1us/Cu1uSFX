@@ -43,3 +43,4 @@ Features:
   - This is enabled by default, but can be disabled using a setting on the SFX List asset, to save performance for projects with a large number of sound effects.
 
 Fixes:
+- The SFX list window will now re-check for unsaved enums when created, to solve issues where the window is still marked as unsaved if it's open when scripts are recompiled from other sources.

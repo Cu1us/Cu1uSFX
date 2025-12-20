@@ -118,7 +118,7 @@ namespace Cu1uSFX.Internal
 
         void CreateGUI()
         {
-            Regenerate();
+            MarkUnsavedChangesAndRegenerate();
         }
 
         void OnAddNewButtonClicked()
@@ -237,9 +237,12 @@ namespace Cu1uSFX.Internal
             if (SFXList.Instance.EnableCodeGeneration)
             {
                 hasUnsavedChanges = HasUnsavedChanges();
-                SaveChangesButton.enabledSelf = hasUnsavedChanges;
             }
             Regenerate();
+            if (SFXList.Instance.EnableCodeGeneration)
+            {
+                SaveChangesButton.enabledSelf = hasUnsavedChanges;
+            }
         }
         bool HasUnsavedChanges()
         {
