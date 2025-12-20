@@ -414,10 +414,11 @@ namespace Cu1uSFX.Internal
         /// <param name="volume">The volume to use for this sound effect.</param>
         /// <param name="pitch">The pitch to use for this sound effect.</param>
         /// <param name="name">The name of this sound effect.</param>
-        public SFXDefinition(ICollection<AudioClip> clips, float volume = 1, float pitch = 1, string name = null)
+        public SFXDefinition(ICollection<AudioClip> clips, float volume = 1, float pitch = 1, string name = null, string category = null)
         {
             _clips = clips.ToArray();
             _name = name;
+            _category = category;
             _volumeMax = volume;
             _volumeMin = volume;
             _pitchMax = pitch;
