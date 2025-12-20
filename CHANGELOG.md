@@ -34,3 +34,13 @@ Features:
 Fixes:
 - Changes to the Log Settings or Audio Source object pool settings on the SFX List asset are now properly saved.
 - Recompilation of scripts after generating the SFX enum now use AssetDatabase.ImportAsset(), which should cause less issues and random errors.
+
+## 1.4.0
+
+Features:
+- You can now quickly define a new SFX by selecting a number of audio clips in the project view, then selecting Create > SFX from selected clips. (Shortcut: Shift+Ctrl+A)
+- The SFX list can now mark newly added but unsaved SFX with an asterisk, to mark that they are unsaved.
+  - This is enabled by default, but can be disabled using a setting on the SFX List asset, to save performance for projects with a large number of sound effects.
+
+Fixes:
+- The SFX list window will now re-check for unsaved enums when created, to solve issues where the window is still marked as unsaved if it's open when scripts are recompiled from other sources.

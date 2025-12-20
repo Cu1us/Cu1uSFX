@@ -1,5 +1,8 @@
 # Tips & tricks
 
+### Quickly create SFX from AudioClips
+You can quickly create a new sound effect by selecting one or multiple AudioClip assets from the project view, then clicking "Create" > "SFX from selected clips", or using the shortcut Shift+Ctrl+A.
+
 ### Parameters of the Play() method
 The `Play()` method has a lot of options to choose from - you can add a pitch multiplier, a volume multiplier, a world-space position to play at, or a transform to follow (optionally with an offset). The `Play()` method also returns a `SFXReference` handle that can be used to stop the sound later, or modify its settings.
 

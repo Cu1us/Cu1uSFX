@@ -85,6 +85,15 @@ namespace Cu1uSFX.Internal
                     serializedObject.FindProperty(nameof(SFXList.AudioSourcePoolMax)),
                     new GUIContent("Max", "Maximum size of the pool.\n\nIf the pool is full, sources above the max count will be destroyed instead of put back in the pool.\n\n[Default = 10]")
                 );
+
+                EditorGUILayout.Space(10);
+
+                EditorGUILayout.PropertyField(
+                    serializedObject.FindProperty(nameof(SFXList.HighlightUnsavedSFXsInList)),
+                    new GUIContent("Highlight unsaved SFX", "Should unsaved sound effects in the SFX list be marked with a '*'?\n\n" +
+                    "Disabling this saves performance if there's a large numbers of sound effects." + 
+                    "\n\n(This setting has no effect if code generation is disabled)\n\n[Default: enabled]")
+                );
             }
             if (EditorGUI.EndChangeCheck())
             {
@@ -100,7 +109,7 @@ namespace Cu1uSFX.Internal
                     new GUIContent(
                         "Enable code generation",
                         "If enabled, the plugin will generate a script containing a static SFX enum class, that lets you access your project-wide sound effects"
-                        + " directly using 'SFX.YourSound' anywhere in the code. Disabling this will delete that script, if it exists."),
+                        + " directly using 'SFX.YourSound' anywhere in the code. Disabling this will delete that script, if it exists.\n\n[Default: enabled]"),
                     enableCodeGen
                 );
                 EditorGUI.BeginDisabledGroup(!enableCodeGen);
@@ -108,7 +117,7 @@ namespace Cu1uSFX.Internal
                     new GUIContent(
                         "Categorize SFX enum",
                         "If enabled, the static SFX enum will sort sound effects by their category, meaning you must access sound effects that have a defined "
-                        + "category using 'SFX.YourCategory.YourSound' instead of just 'SFX.YourSound'."
+                        + "category using 'SFX.YourCategory.YourSound' instead of just 'SFX.YourSound'.\n\n[Default: disabled]"
                 ),
                 enableCategoryCodeGen
                 );

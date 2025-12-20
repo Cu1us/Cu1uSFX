@@ -62,7 +62,12 @@ namespace Cu1uSFX.Internal
         /// <summary>
         /// Determines if the generated SFX enums should be sorted by category.
         /// </summary>
-        public bool CategorizeSFXEnum;
+        public bool CategorizeSFXEnum = false;
+        /// <summary>
+        /// Should unsaved sound effects in the SFX list be marked with a '*'?
+        /// Disabling this saves performance if there's a large numbers of sound effects.
+        /// </summary>
+        public bool HighlightUnsavedSFXsInList = true;
 #if UNITY_EDITOR
         /// <summary>
         /// The path of the script to fill when generating the SFX enum names. Note that changing this to another script or file will permanently overwrite its contents!
@@ -409,10 +414,11 @@ namespace Cu1uSFX.Internal
         /// <param name="volume">The volume to use for this sound effect.</param>
         /// <param name="pitch">The pitch to use for this sound effect.</param>
         /// <param name="name">The name of this sound effect.</param>
-        public SFXDefinition(ICollection<AudioClip> clips, float volume = 1, float pitch = 1, string name = null)
+        public SFXDefinition(ICollection<AudioClip> clips, float volume = 1, float pitch = 1, string name = null, string category = null)
         {
             _clips = clips.ToArray();
             _name = name;
+            _category = category;
             _volumeMax = volume;
             _volumeMin = volume;
             _pitchMax = pitch;

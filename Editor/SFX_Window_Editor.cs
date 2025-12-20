@@ -118,7 +118,7 @@ namespace Cu1uSFX.Internal
 
         void CreateGUI()
         {
-            Regenerate();
+            MarkUnsavedChangesAndRegenerate();
         }
 
         void OnAddNewButtonClicked()
@@ -127,8 +127,8 @@ namespace Cu1uSFX.Internal
             SerializedProperty definitionsProp = sfxList.FindProperty(nameof(SFXList.Definitions));
             string category = CategoryTabView.activeTab.label == "All" ? "" : CategoryTabView.activeTab.label;
             SFX_NewSFXWindow_Editor window = SFX_NewSFXWindow_Editor.Spawn(definitionsProp, category);
-            window.OnObjectUpdated -= MarkUnsavedChangesAndRegenerate;
-            window.OnObjectUpdated += MarkUnsavedChangesAndRegenerate;
+            window.OnSFXAdded -= MarkUnsavedChangesAndRegenerate;
+            window.OnSFXAdded += MarkUnsavedChangesAndRegenerate;
         }
 
         void OnCategoryOfSFXChanged()
@@ -145,7 +145,16 @@ namespace Cu1uSFX.Internal
             };
 
             string soundName = sfxProp.FindPropertyRelative("_name").stringValue;
-            Label label = new(soundName)
+            string soundDisplayName;
+            if (SFXList.Instance.HighlightUnsavedSFXsInList && SFXList.Instance.EnableCodeGeneration && !SFXList.Instance.EnumNames.Contains(soundName))
+            {
+                soundDisplayName = soundName + '*';
+            }
+            else
+            {
+                soundDisplayName = soundName;
+            }
+            Label label = new(soundDisplayName)
             {
                 style = { unityFontStyleAndWeight = FontStyle.Bold, marginLeft = 10, marginRight = 10, marginTop = 3, alignSelf = Align.FlexStart }
             };
@@ -228,9 +237,12 @@ namespace Cu1uSFX.Internal
             if (SFXList.Instance.EnableCodeGeneration)
             {
                 hasUnsavedChanges = HasUnsavedChanges();
-                SaveChangesButton.enabledSelf = hasUnsavedChanges;
             }
             Regenerate();
+            if (SFXList.Instance.EnableCodeGeneration)
+            {
+                SaveChangesButton.enabledSelf = hasUnsavedChanges;
+            }
         }
         bool HasUnsavedChanges()
         {
@@ -276,12 +288,21 @@ namespace Cu1uSFX.Internal
         /// This is run when the user clicks Window/SFX Editor.
         /// </summary>
         [MenuItem("Window/SFX Editor")]
-        public static void Spawn()
+        public static void SpawnViaMenuItem() => Spawn();
+        public static SFX_Window_Editor Spawn(bool checkForUnsavedChanges = true)
         {
             SFX_Window_Editor window = GetWindow<SFX_Window_Editor>();
             window.titleContent.text = "Sound Effects";
             window.minSize = new(100, 100);
-            window.Regenerate();
+            if (checkForUnsavedChanges)
+            {
+                window.MarkUnsavedChangesAndRegenerate();
+            }
+            else
+            {
+                window.Regenerate();
+            }
+            return window;
         }
     }
 
@@ -713,21 +734,28 @@ namespace Cu1uSFX.Internal
         SerializedProperty DefinitionsProperty;
         TextField NameField;
         Label ErrorLabel;
-        string categoryToAddTo;
-        public Action OnObjectUpdated;
-        public static SFX_NewSFXWindow_Editor Spawn(SerializedProperty definitionsListProp, string category)
+        AudioClip[] StartingClips;
+        string CategoryToAddTo;
+        bool ShowListWhenCompleted;
+        public Action OnSFXAdded;
+        public static SFX_NewSFXWindow_Editor Spawn(SerializedProperty definitionsListProp, string category, AudioClip[] startingClips = null, bool showListWhenCompleted = false)
         {
             if (HasOpenInstances<SFX_NewSFXWindow_Editor>())
             {
                 FocusWindowIfItsOpen<SFX_NewSFXWindow_Editor>();
-                return GetWindow<SFX_NewSFXWindow_Editor>();
+                SFX_NewSFXWindow_Editor window = GetWindow<SFX_NewSFXWindow_Editor>();
+                window.StartingClips = startingClips;
+                window.CategoryToAddTo = category;
+                window.ShowListWhenCompleted = true;
+                window.OnSFXAdded = null;
+                return window;
             }
             else
             {
                 SFX_NewSFXWindow_Editor window = GetWindow<SFX_NewSFXWindow_Editor>(true, "Create new sound effect", true);
                 window.ShowUtility();
                 window.minSize = new(200, 120);
-                window.Initialize(definitionsListProp, category);
+                window.Initialize(definitionsListProp, category, startingClips, showListWhenCompleted);
                 return window;
             }
         }
@@ -736,19 +764,23 @@ namespace Cu1uSFX.Internal
             if (DefinitionsProperty == null && this != null)
                 Close();
         }
-        void Initialize(SerializedProperty definitionsListProp, string category)
+        void Initialize(SerializedProperty definitionsListProp, string category, AudioClip[] startingClips = null, bool showListWhenCompleted = false)
         {
+            OnSFXAdded = null;
             DefinitionsProperty = definitionsListProp;
+            StartingClips = startingClips;
             NameField = new()
             {
-                style = { marginTop = 20, marginBottom = 20 }
+                style = { marginTop = 20, marginBottom = 20 },
+                value = StartingClips?.Length > 0 ? SFXEnumGenerator.FormatEnumName(startingClips[0]?.name) : ""
             };
             ErrorLabel = new()
             {
                 visible = false,
                 style = { color = Color.red }
             };
-            categoryToAddTo = category;
+            CategoryToAddTo = category;
+            ShowListWhenCompleted = showListWhenCompleted;
             rootVisualElement.Add(GenerateRootContent());
             NameField.Focus();
         }
@@ -816,9 +848,22 @@ namespace Cu1uSFX.Internal
             int newIndex = DefinitionsProperty.arraySize;
             DefinitionsProperty.InsertArrayElementAtIndex(newIndex);
             SerializedProperty newSfx = DefinitionsProperty.GetArrayElementAtIndex(newIndex);
-            newSfx.boxedValue = new SFXDefinition(formattedValue, categoryToAddTo);
+            if (StartingClips != null && StartingClips.Length > 0)
+            {
+                newSfx.boxedValue = new SFXDefinition(StartingClips, name: formattedValue, category: CategoryToAddTo);
+            }
+            else
+            {
+                newSfx.boxedValue = new SFXDefinition(formattedValue, CategoryToAddTo);
+            }
             newSfx.serializedObject.ApplyModifiedProperties();
-            OnObjectUpdated?.Invoke();
+            OnSFXAdded?.Invoke();
+
+            if (ShowListWhenCompleted)
+            {
+                SFX_Window_Editor.Spawn();
+            }
+
             Close();
         }
     }
