@@ -279,15 +279,6 @@ namespace Cu1uSFX
             }
             return count;
         }
-        /// <summary>
-        /// Stops the specified sound effect.
-        /// </summary>
-        /// <param name="sfxReference">The reference to the sound effect to stop.</param>
-        /// <param name="runFinishedCallback"></param>
-        // public static void Stop(this SFXReference sfxReference, bool runFinishedCallback = true)
-        // {
-        //     sfxReference.Stop(runFinishedCallback); // Circular method call - prioritizes this extension above the Stop() defined in SFXReference
-        // }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void InitializePool()
