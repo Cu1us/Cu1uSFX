@@ -1,6 +1,11 @@
-using System.Collections.Generic;
+//#define ALLOW_UIELEMENTS_IMPLEMENTATION
+
 using UnityEditor;
+using UnityEngine;
+#if ALLOW_UIELEMENTS_IMPLEMENTATION
 using UnityEngine.UIElements;
+using System.Collections.Generic;
+#endif
 
 // Cu1uSFX Sound Effect Plugin
 // Copyright (C) 2025  Måns Fritiofsson
@@ -27,6 +32,7 @@ namespace Cu1uSFX.Internal
     [CustomPropertyDrawer(typeof(PredefinedSFX))]
     public class PredefinedSFX_Editor : PropertyDrawer
     {
+#if ALLOW_UIELEMENTS_IMPLEMENTATION
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             string selectedSFXName = property.FindPropertyRelative("SerializedName").stringValue;
@@ -79,6 +85,63 @@ namespace Cu1uSFX.Internal
             });
 
             return dropdownField;
+        }
+#endif
+
+        // IMGUI fallback
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            int sfxIndex = property.FindPropertyRelative("_indexInSFXList").intValue;
+            string selectedSFXName;
+            string selectedSFXCategory;
+            if (sfxIndex < SFXList.Instance.Definitions.Length)
+            {
+                SFXDefinition definition = SFXList.Instance.Definitions[sfxIndex];
+                selectedSFXName = definition.Name;
+                selectedSFXCategory = definition.Category;
+            }
+            else
+            {
+                selectedSFXName = "None";
+                selectedSFXCategory = null;
+            }
+            Rect rect = EditorGUI.PrefixLabel(position, label);
+            if (EditorGUI.DropdownButton(rect, new GUIContent(string.IsNullOrWhiteSpace(selectedSFXCategory) ? selectedSFXName : $"{selectedSFXCategory}/{selectedSFXName}"), FocusType.Passive))
+            {
+                GenericMenu menu = new();
+
+                menu.AddItem(new GUIContent("None"), selectedSFXName == "None", () => OnOptionClicked(property, ushort.MaxValue, null));
+
+                int optionCount = SFXList.Instance.Definitions.Length;
+
+                for (int i = 0; i < optionCount; i++)
+                {
+                    SFXDefinition definition = SFXList.Instance.Definitions[i];
+
+                    string category = definition.Category;
+                    string name = definition.Name;
+
+                    bool selected = name == selectedSFXName;
+
+                    int tempIndex = i;
+
+                    if (string.IsNullOrWhiteSpace(category))
+                        menu.AddItem(new GUIContent(name), selected, () => OnOptionClicked(property, tempIndex, name));
+                    else
+                        menu.AddItem(new GUIContent($"{category}/{name}"), selected, () => OnOptionClicked(property, tempIndex, name));
+                }
+
+                menu.ShowAsContext();
+            }
+
+            static void OnOptionClicked(SerializedProperty property, int sfxIndex, string sfxName)
+            {
+                SerializedProperty sfxNameProp = property.FindPropertyRelative("SerializedName");
+                SerializedProperty sfxIndexProp = property.FindPropertyRelative("_indexInSFXList");
+                sfxNameProp.stringValue = sfxName;
+                sfxIndexProp.intValue = sfxIndex;
+                property.serializedObject.ApplyModifiedProperties();
+            }
         }
     }
 }

@@ -87,6 +87,7 @@ namespace Cu1uSFX.Internal
             FollowTransformLocalOffset = Vector3.zero;
             transform.position = worldPosition ?? default;
             AudioSourceComponent.spatialize = worldPosition != null;
+            AudioSourceComponent.spatialBlend = AudioSourceComponent.spatialize ? 1f : 0f;
             AudioSourceComponent.Play();
             playing = true;
         }
@@ -96,6 +97,7 @@ namespace Cu1uSFX.Internal
             FollowTransformLocalOffset = Vector3.zero;
             transform.position = followTransform.position;
             AudioSourceComponent.spatialize = true;
+            AudioSourceComponent.spatialBlend = 1f;
             AudioSourceComponent.Play();
             playing = true;
         }
@@ -105,6 +107,7 @@ namespace Cu1uSFX.Internal
             FollowTransformLocalOffset = localOffset;
             transform.position = FollowTransform.TransformPoint(FollowTransform.localPosition + FollowTransformLocalOffset);
             AudioSourceComponent.spatialize = true;
+            AudioSourceComponent.spatialBlend = 1f;
             AudioSourceComponent.Play();
             playing = true;
         }
@@ -122,7 +125,7 @@ namespace Cu1uSFX.Internal
             AudioSourceComponent.volume = 1;
             AudioSourceComponent.spatialize = false;
             AudioSourceComponent.panStereo = 0;
-            AudioSourceComponent.spatialBlend = 1;
+            AudioSourceComponent.spatialBlend = 0f;
             AudioSourceComponent.rolloffMode = default;
             AudioSourceComponent.minDistance = 1;
             AudioSourceComponent.maxDistance = 500;

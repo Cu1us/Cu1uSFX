@@ -1,8 +1,5 @@
-using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.UIElements;
 using UnityEngine.UIElements;
-using PopupWindow = UnityEngine.UIElements.PopupWindow;
 
 // Cu1uSFX Sound Effect Plugin
 // Copyright (C) 2025  Måns Fritiofsson

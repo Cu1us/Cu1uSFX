@@ -47,59 +47,64 @@ namespace Cu1uSFX.Internal
             SFXList sfxList = (SFXList)serializedObject.targetObject;
             if (sfxList != SFXList.Instance)
             {
-                EditorGUILayout.LabelField("Invalid SFX List object.");
-                EditorGUILayout.LabelField($"To load correctly, a SFXList asset named '{SFXList.SINGLETON_ASSET_NAME}' should exist inside the Resources folder.");
+                EditorGUILayout.HelpBox($"Invalid SFX List object.\nFor the plugin to function, a SFXList asset named '{SFXList.SINGLETON_ASSET_NAME}' must exist under a Resources folder.", MessageType.Error);
                 return;
             }
 
+            EditorGUILayout.Space(10);
+            EditorGUILayout.LabelField($"Sound effects: {sfxList.Definitions.Length}", new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold, alignment = TextAnchor.MiddleCenter, fontSize = 14 });
+
             // Open editor button
             EditorGUILayout.Space(10);
-            if (GUILayout.Button("Open SFX Editor"))
+            if (GUILayout.Button("Open SFX Editor", new GUIStyle(GUI.skin.button) { margin = new RectOffset(60, 60, 0, 0), fixedHeight = 30 }))
             {
                 SFX_Window_Editor.Spawn();
             }
-            GUIStyle smallTextStyle = new(GUI.skin.label);
-            smallTextStyle.fontSize -= 2;
-            EditorGUILayout.LabelField("The SFX editor can also be opened using the Window/SFX Editor tab.", smallTextStyle);
+            EditorGUILayout.Space(5);
+            EditorGUILayout.HelpBox("The SFX editor can also be opened using the Window/SFX Editor tab.", MessageType.Info);
             EditorGUILayout.Space(20);
+
+            GUIStyle headerStyle = new(GUI.skin.label)
+            {
+                fontStyle = FontStyle.Bold
+            };
 
 
             EditorGUI.BeginChangeCheck();
             {
-                // Log settings
-                EditorGUILayout.LabelField(new GUIContent("Log settings", "When should the Cu1uSFX plugin send log messages?"));
-                EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(SFXList.LogFlags)), GUIContent.none);
+                EditorGUILayout.LabelField(new GUIContent("General settings"), headerStyle);
+
+                // Highlight unsaved SFX setting
+                EditorGUILayout.PropertyField(
+                    serializedObject.FindProperty(nameof(SFXList.HighlightUnsavedSFXsInList)),
+                    new GUIContent("Highlight unsaved SFX in list", "Should unsaved sound effects in the SFX list be marked with a '*'?\n\n" +
+                    "Disabling this saves performance if there's a large numbers of sound effects." +
+                    "\n\n(This setting has no effect if code generation is disabled)\n\n[Default: enabled]")
+                );
+                // Log messages setting
+                EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(SFXList.LogFlags)), new GUIContent("Log messages", "When should the Cu1uSFX plugin send log messages?"));
                 EditorGUILayout.Space(10);
 
                 // Audio Source object pool settings
                 EditorGUILayout.LabelField(new GUIContent(
-                    "Audio Source object pool",
+                    "Audio Source pooling",
                     "AudioSources are pooled to optimize performance: instead of destroying sources when they're finished playing, they're disabled and reused later." +
                     "\n\nIf you plan on playing a lot of concurrent sounds, make sure these values are appropriate."
-                ));
+                ), headerStyle);
                 EditorGUILayout.PropertyField(
                     serializedObject.FindProperty(nameof(SFXList.AudioSourcePoolDefault)),
-                    new GUIContent("Default", "Starting size of the pool.\n\nWhen the game starts, this many AudioSources will be prepared in advance.\n\n[Default = 3]")
+                    new GUIContent("Prewarm", "Starting size of the pool.\n\nWhen the game starts, this many AudioSources will be prepared in advance.\n\n[Default = 0]")
                 );
                 EditorGUILayout.PropertyField(
                     serializedObject.FindProperty(nameof(SFXList.AudioSourcePoolMax)),
                     new GUIContent("Max", "Maximum size of the pool.\n\nIf the pool is full, sources above the max count will be destroyed instead of put back in the pool.\n\n[Default = 10]")
-                );
-
-                EditorGUILayout.Space(10);
-
-                EditorGUILayout.PropertyField(
-                    serializedObject.FindProperty(nameof(SFXList.HighlightUnsavedSFXsInList)),
-                    new GUIContent("Highlight unsaved SFX", "Should unsaved sound effects in the SFX list be marked with a '*'?\n\n" +
-                    "Disabling this saves performance if there's a large numbers of sound effects." + 
-                    "\n\n(This setting has no effect if code generation is disabled)\n\n[Default: enabled]")
                 );
             }
             if (EditorGUI.EndChangeCheck())
             {
                 serializedObject.ApplyModifiedProperties();
             }
-            EditorGUILayout.Space(15);
+            EditorGUILayout.Space(10);
 
             showGenOptions = EditorGUILayout.Foldout(showGenOptions, "Code generation");
             if (showGenOptions)
@@ -132,42 +137,29 @@ namespace Cu1uSFX.Internal
                     style.fontSize -= 2;
                     style.normal.textColor = style.normal.textColor * new Color(1f, 1f, 0.7f);
                     EditorGUI.BeginChangeCheck();
-                    EditorGUILayout.LabelField("Here you can change the script that the SFX enum is generated in.", style);
+                    EditorGUILayout.HelpBox("Changing the target script for enum generation will delete the previous script asset, and overwrite the contents of the new script you select. This cannot be undone!", MessageType.Warning);
                     EditorGUI.BeginDisabledGroup(!enableCodeGen);
                     selectedEnumScript = EditorGUILayout.ObjectField(new GUIContent("Enum generation target"), selectedEnumScript, typeof(MonoScript), false) as MonoScript;
                     EditorGUI.EndDisabledGroup();
-                    EditorGUILayout.LabelField("WARNING: Changing this will delete the old script asset,", style);
-                    EditorGUILayout.LabelField("and overwrite the contents of the new script asset.", style);
-                    EditorGUILayout.LabelField("This can not be undone!", style);
-                    EditorGUILayout.Space(5);
-                    EditorGUILayout.LabelField("To change this safely:", style);
-                    EditorGUILayout.LabelField("- Create a new empty script at your desired location", style);
-                    EditorGUILayout.LabelField("- Assign that script to the field above", style);
-                    EditorGUILayout.LabelField("- Click 'Save and Recompile", style);
                     EditorGUILayout.Space(5);
                     showDebug = EditorGUILayout.Foldout(showDebug, "Debug");
                     if (showDebug)
                     {
                         EditorGUI.indentLevel++;
+                        GUIStyle buttonStyle = new(GUI.skin.button) { margin = new RectOffset(60, 30, 0, 0) };
                         EditorGUILayout.Space(10);
-                        if (GUILayout.Button("Regenerate SFX enum script immediately"))
+
+                        if (GUILayout.Button("Regenerate SFX enum script immediately", buttonStyle))
                         {
                             SFXList.LogIfFlag(SFXLogFlags.NOTIF_INFO, "[Cu1uSFX] Regenerating SFX enum without recompiling...");
                             SFXEnumGenerator.GenerateEnumScript(enableCategoryCodeGen);
                         }
-                        EditorGUILayout.Space(10);
-                        if (GUILayout.Button("Delete SFX enum script"))
+                        EditorGUILayout.Space(5);
+                        if (GUILayout.Button("Delete SFX enum script", buttonStyle))
                         {
                             SFXList.LogIfFlag(SFXLogFlags.NOTIF_INFO, "[Cu1uSFX] Deleting SFX enum script...");
                             SFXEnumGenerator.DeleteEnumScript();
                         }
-                        // EditorGUILayout.Space(10);
-                        // if (GUILayout.Button("Recompile scripts"))
-                        // {
-                        //     SFXList.LogIfFlag(SFXLogFlags.NOTIF_INFO, "[Cu1uSFX] Triggering script recompilation...");
-                        //     showDebug = false;
-                        //     SFXEnumGenerator.RecompileScripts();
-                        // }
                         EditorGUILayout.Space(5);
                         EditorGUI.indentLevel--;
                     }
@@ -182,7 +174,7 @@ namespace Cu1uSFX.Internal
                 bool changed = enableCodeGen != sfxList.EnableCodeGeneration || enableCategoryCodeGen != sfxList.CategorizeSFXEnum || changedGenerationTarget;
 
                 EditorGUI.BeginDisabledGroup(!changed);
-                if (GUILayout.Button("Save and Recompile"))
+                if (GUILayout.Button("Save and Recompile", new GUIStyle(GUI.skin.button) { margin = new RectOffset(30, 0, 0, 0) }))
                 {
                     sfxList.CategorizeSFXEnum = enableCategoryCodeGen;
                     if (enableCodeGen)
@@ -211,6 +203,13 @@ namespace Cu1uSFX.Internal
                 EditorGUI.EndDisabledGroup();
                 EditorGUI.indentLevel--;
             }
+        }
+
+        protected override void OnHeaderGUI()
+        {
+            base.OnHeaderGUI();
+            Rect position = new(0, 0, EditorGUIUtility.currentViewWidth, 25);
+            EditorGUI.LabelField(position, new GUIContent($"[ Cu1uSFX v.{SFXList.PLUGIN_VERSION} ]"), new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontSize = 13 });
         }
     }
 }
