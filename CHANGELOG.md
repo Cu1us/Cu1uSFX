@@ -44,3 +44,16 @@ Features:
 
 Fixes:
 - The SFX list window will now re-check for unsaved enums when created, to solve issues where the window is still marked as unsaved if it's open when scripts are recompiled from other sources.
+
+## 1.4.1
+
+Changes:
+- Default AudioSource prewarm count setting on the SFXList asset was changed to 0 (from 3)
+- The PredefinedSFX property drawer now uses IMGUI by default, instead of UIElements. The old implementation has been moved behind a compiler define, and can be enabled in parallell if desired.
+- Changed the SFXList asset inspector to be more clear and readable.
+  - It now also shows the total amount of defined (global) sound effects, as well as the current package version.
+
+Fixes:
+- The AudioSource pool is now properly prewarmed. This is done before the first scene load, before Awake() has been called on the scene objects.
+  - The amount of objects to prewarm can be configured on the SFXList asset.
+- Sounds that cause a new AudioSource to be instantiated in the pool will no longer have the incorrect spatial blend settings set, which would lead to the volume sounding off. (reported by McFluff)
