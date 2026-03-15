@@ -300,6 +300,21 @@ namespace Cu1uSFX
                 defaultCapacity: SFXList.Instance.AudioSourcePoolDefault,
                 maxSize: SFXList.Instance.AudioSourcePoolMax
             );
+
+            // Prewarm pool
+            int prewarmAmount = SFXList.Instance.AudioSourcePoolDefault;
+            if (prewarmAmount > 0)
+            {
+                AudioSource[] buffer = new AudioSource[prewarmAmount];
+                for (int i = 0; i < prewarmAmount; i++)
+                {
+                    buffer[i] = SourcePool.Get();
+                }
+                for (int i = 0; i < prewarmAmount; i++)
+                {
+                    SourcePool.Release(buffer[i]);
+                }
+            }
         }
         static AudioSource PoolCreate()
         {
