@@ -299,7 +299,7 @@ namespace Cu1uSFX.Internal
         [SerializeField] bool _randomizePitch;
         [SerializeField] float _pitchMin = 1;
         [SerializeField] float _pitchMax = 1;
-        [SerializeField] int _priority;
+        [SerializeField] int _priority = 128;
 #pragma warning restore IDE0044 // Suppress IDE0044: Add readonly modifier
 
         /// <summary>
