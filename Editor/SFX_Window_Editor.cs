@@ -318,6 +318,8 @@ namespace Cu1uSFX.Internal
         public bool EditingFromInspector = false;
         public string InspectorObjectName;
 
+        VisualElement AdvancedFoldout;
+        bool m_advancedFoldoutVisible = false;
         Button PreviewButton;
         Label PreviewButtonErrorLabel;
 
@@ -390,7 +392,14 @@ namespace Cu1uSFX.Internal
         }
         VisualElement GenerateRootContent()
         {
-            ScrollView content = new(ScrollViewMode.Vertical);
+            VisualElement container = new()
+            {
+                style = { flexGrow = 1f }
+            };
+            ScrollView scrollContainer = new(ScrollViewMode.Vertical)
+            {
+                style = { flexGrow = 1f }
+            };
 
             string sfxName;
             if (EditingFromInspector)
@@ -406,7 +415,7 @@ namespace Cu1uSFX.Internal
             {
                 style = { alignSelf = Align.Center, unityFontStyleAndWeight = FontStyle.Bold, marginTop = 8, marginBottom = 4, fontSize = 18 }
             };
-            content.Add(editingLabel);
+            scrollContainer.Add(editingLabel);
 
             if (EditingFromInspector && !string.IsNullOrWhiteSpace(InspectorObjectName))
             {
@@ -414,8 +423,34 @@ namespace Cu1uSFX.Internal
                 {
                     style = { alignSelf = Align.Center, unityFontStyleAndWeight = FontStyle.Bold, marginTop = 0, marginBottom = 4, fontSize = 10 }
                 };
-                content.Add(inspectorObjectLabel);
+                scrollContainer.Add(inspectorObjectLabel);
             }
+
+            Box footer = new()
+            {
+                style = { left = 0, right = 0, bottom = 0, height = 20, flexDirection = FlexDirection.RowReverse }
+            };
+
+            Toggle showAdvancedToggle = new()
+            {
+                value = m_advancedFoldoutVisible,
+                style = { flexDirection = FlexDirection.RowReverse, top = 2f }
+            };
+            Label showAdvancedToggleLabel = new("Show advanced?")
+            {
+                style = { fontSize = 10, top = 1f, unityFontStyleAndWeight = FontStyle.Italic, marginRight = 2, color = Color.gray }
+            };
+            showAdvancedToggle.Add(showAdvancedToggleLabel);
+            showAdvancedToggle.RegisterCallback<ChangeEvent<bool>>((callback) =>
+            {
+                if (callback.newValue == callback.previousValue) return;
+                m_advancedFoldoutVisible = callback.newValue;
+                if (AdvancedFoldout != null)
+                {
+                    AdvancedFoldout.style.display = callback.newValue ? DisplayStyle.Flex : DisplayStyle.None;
+                }
+            });
+            footer.Add(showAdvancedToggle);
 
             //
             // Audio clips settings
@@ -623,6 +658,44 @@ namespace Cu1uSFX.Internal
             };
 
             //
+            // Advanced
+            //
+
+            AdvancedFoldout = new VisualElement()
+            {
+                style = { display = m_advancedFoldoutVisible ? DisplayStyle.Flex : DisplayStyle.None }
+            };
+
+            string priorityPropPath = SfxProperty.FindPropertyRelative("_priority").propertyPath;
+            Box priorityBox = new()
+            {
+                style = { flexDirection = FlexDirection.Row, paddingBottom = 10f, paddingTop = 3f, marginRight = 15f, marginLeft = 15f, marginTop = 25f }
+            };
+            SliderInt prioritySlider = new()
+            {
+                lowValue = 0,
+                highValue = 256,
+                label = "Priority",
+                tooltip = "Sets the priority of the sound, relative all other audio sources.\n" +
+                "A higher value means this sound is more likely to be stolen by other audio souces with lower priority.\n\n" +
+                "[Default: 128]",
+                bindingPath = priorityPropPath,
+                style = { flexGrow = 1f }
+            };
+            priorityBox.Add(prioritySlider);
+            IntegerField priorityField = new()
+            {
+                bindingPath = priorityPropPath,
+                style = { minWidth = 35f }
+            };
+            priorityBox.Add(priorityField);
+            prioritySlider.Add(new Label("High <-> Low")
+            {
+                style = { position = Position.Absolute, unityTextAlign = TextAnchor.LowerLeft, fontSize = 10, color = Color.gray, left = 137, top = 10 }
+            });
+            AdvancedFoldout.Add(priorityBox);
+
+            //
             // Bind fields
             //
 
@@ -631,18 +704,23 @@ namespace Cu1uSFX.Internal
             maxPitchField.Bind(SfxProperty.serializedObject);
             minVolumeField.Bind(SfxProperty.serializedObject);
             maxVolumeField.Bind(SfxProperty.serializedObject);
+            prioritySlider.Bind(SfxProperty.serializedObject);
+            priorityField.Bind(SfxProperty.serializedObject);
             clipsField.Bind(SfxProperty.serializedObject);
 
             // categoryField?.RegisterValueChangeCallback(OnCategoryChanged);
 
-            content.Add(clipsSettings);
-            content.Add(pitchSettings);
-            content.Add(volumeSettings);
-            if (categoryField != null) content.Add(categoryField);
-            content.Add(PreviewButton);
-            content.Add(PreviewButtonErrorLabel);
+            scrollContainer.Add(clipsSettings);
+            scrollContainer.Add(pitchSettings);
+            scrollContainer.Add(volumeSettings);
+            scrollContainer.Add(AdvancedFoldout);
+            if (categoryField != null) scrollContainer.Add(categoryField);
+            scrollContainer.Add(PreviewButton);
+            scrollContainer.Add(PreviewButtonErrorLabel);
 
-            return content;
+            container.Add(scrollContainer);
+            container.Add(footer);
+            return container;
         }
         void OnCategoryChanged(SerializedProperty property)
         {
