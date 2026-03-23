@@ -46,6 +46,7 @@ namespace Cu1uSFX
             source.clip = clip;
             source.volume = sampledVolume;
             source.pitch = sampledPitch;
+            source.priority = sfx.Priority;
 
             SFXHandler handler = source.GetComponent<SFXHandler>();
 
