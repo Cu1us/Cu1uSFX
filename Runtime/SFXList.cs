@@ -29,7 +29,7 @@ namespace Cu1uSFX.Internal
     public class SFXList : ScriptableObject
     {
         public const string SINGLETON_ASSET_NAME = "SFX List";
-        public const string PLUGIN_VERSION = "1.4.1";
+        public const string PLUGIN_VERSION = "1.4.2";
 
         static SFXList _instance;
         /// <summary>
