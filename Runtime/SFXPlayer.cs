@@ -418,6 +418,24 @@ namespace Cu1uSFX
             }
         }
         /// <summary>
+        /// The priority of this sound effect. 
+        /// </summary>
+        /// <remarks>
+        /// A sound with a larger priority value is more likely to be stolen by a sound with a smaller priority value.
+        /// </remarks>
+        public int Priority
+        {
+            get => IsValid ? AudioSource.priority : 0;
+            set
+            {
+                if (IsValid) AudioSource.priority = value;
+                else
+                {
+                    SFXList.LogWarningIfFlag(SFXLogFlags.SFXREF_EXPIRED, $"[Cu1uSFX] Script attempted to set {nameof(Priority)} on an expired SFXReference.");
+                }
+            }
+        }
+        /// <summary>
         /// The sound effect playback position in seconds.
         /// </summary>
         public float Time
