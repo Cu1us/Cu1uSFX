@@ -57,3 +57,9 @@ Fixes:
 - The AudioSource pool is now properly prewarmed. This is done before the first scene load, before Awake() has been called on the scene objects.
   - The amount of objects to prewarm can be configured on the SFXList asset.
 - Sounds that cause a new AudioSource to be instantiated in the pool will no longer have the incorrect spatial blend settings set, which would lead to the volume sounding off. (reported by McFluff)
+
+## 1.4.2
+
+Features:
+- You can now set different priority values for sounds inside the SFX editor window, or per-call by using the Priority property on a SFXReference.
+- Tweaked layout of the SFX editor window, adding a footer and a Show Advanced toggle.

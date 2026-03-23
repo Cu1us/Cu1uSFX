@@ -1,6 +1,6 @@
 {
     "name": "com.cu1us.cu1usfx",
-    "version": "1.4.1",
+    "version": "1.4.2",
     "displayName": "Cu1uSFX",
     "description": "A package for easily adding sound effects to a project through a window, and playing them from anywhere in your code.",
     "author": 

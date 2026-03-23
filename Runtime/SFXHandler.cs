@@ -129,6 +129,7 @@ namespace Cu1uSFX.Internal
             AudioSourceComponent.rolloffMode = default;
             AudioSourceComponent.minDistance = 1;
             AudioSourceComponent.maxDistance = 500;
+            AudioSourceComponent.priority = 128;
             FollowTransform = null;
             FollowTransformLocalOffset = Vector3.zero;
             OnComplete = null;

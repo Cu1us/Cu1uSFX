@@ -46,6 +46,7 @@ namespace Cu1uSFX
             source.clip = clip;
             source.volume = sampledVolume;
             source.pitch = sampledPitch;
+            source.priority = sfx.Priority;
 
             SFXHandler handler = source.GetComponent<SFXHandler>();
 
@@ -414,6 +415,24 @@ namespace Cu1uSFX
                 else
                 {
                     SFXList.LogWarningIfFlag(SFXLogFlags.SFXREF_EXPIRED, $"[Cu1uSFX] Script attempted to set {nameof(StereoPanning)} on an expired SFXReference.");
+                }
+            }
+        }
+        /// <summary>
+        /// The priority of this sound effect. 
+        /// </summary>
+        /// <remarks>
+        /// A sound with a larger priority value is more likely to be stolen by a sound with a smaller priority value.
+        /// </remarks>
+        public int Priority
+        {
+            get => IsValid ? AudioSource.priority : 0;
+            set
+            {
+                if (IsValid) AudioSource.priority = value;
+                else
+                {
+                    SFXList.LogWarningIfFlag(SFXLogFlags.SFXREF_EXPIRED, $"[Cu1uSFX] Script attempted to set {nameof(Priority)} on an expired SFXReference.");
                 }
             }
         }

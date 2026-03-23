@@ -29,7 +29,7 @@ namespace Cu1uSFX.Internal
     public class SFXList : ScriptableObject
     {
         public const string SINGLETON_ASSET_NAME = "SFX List";
-        public const string PLUGIN_VERSION = "1.4.1";
+        public const string PLUGIN_VERSION = "1.4.2";
 
         static SFXList _instance;
         /// <summary>
@@ -299,6 +299,7 @@ namespace Cu1uSFX.Internal
         [SerializeField] bool _randomizePitch;
         [SerializeField] float _pitchMin = 1;
         [SerializeField] float _pitchMax = 1;
+        [SerializeField] int _priority = 128;
 #pragma warning restore IDE0044 // Suppress IDE0044: Add readonly modifier
 
         /// <summary>
@@ -353,6 +354,13 @@ namespace Cu1uSFX.Internal
         /// <seealso cref="PitchMin"/>
         /// <seealso cref="RandomizePitch"/>
         public float PitchMax => _pitchMax;
+        /// <summary>
+        /// The priority of this sound effect, relative other sound effects.
+        /// </summary>
+        /// <remarks>
+        /// A higher priority value means it's more likely to be interrupted by sounds of a lower priority value.
+        /// </remarks>
+        public int Priority => _priority;
 
         /// <summary>
         /// Samples data from this definition, based on its settings, to play from an AudioSource.
@@ -415,7 +423,7 @@ namespace Cu1uSFX.Internal
         /// <param name="volume">The volume to use for this sound effect.</param>
         /// <param name="pitch">The pitch to use for this sound effect.</param>
         /// <param name="name">The name of this sound effect.</param>
-        public SFXDefinition(ICollection<AudioClip> clips, float volume = 1, float pitch = 1, string name = null, string category = null)
+        public SFXDefinition(ICollection<AudioClip> clips, float volume = 1, float pitch = 1, int priority = 0, string name = null, string category = null)
         {
             _clips = clips.ToArray();
             _name = name;
@@ -426,6 +434,7 @@ namespace Cu1uSFX.Internal
             _pitchMin = pitch;
             _randomizePitch = false;
             _randomizeVolume = false;
+            _priority = priority;
         }
         /// <summary>
         /// Creates a SFXDefinition with the specified clips and randomized data.
@@ -436,7 +445,7 @@ namespace Cu1uSFX.Internal
         /// <param name="pitchMin">The minimum pitch that can be picked for this sound effect.</param>
         /// <param name="pitchMax">The maximum pitch that can be picked for this sound effect.</param>
         /// <param name="name">The name of this sound effect.</param>
-        public SFXDefinition(ICollection<AudioClip> clips, float volumeMin, float volumeMax, float pitchMin, float pitchMax, string category = null, string name = null)
+        public SFXDefinition(ICollection<AudioClip> clips, float volumeMin, float volumeMax, float pitchMin, float pitchMax, int priority = 0, string category = null, string name = null)
         {
             _clips = clips.ToArray();
             _name = name;
